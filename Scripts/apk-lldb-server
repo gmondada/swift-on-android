@@ -1,0 +1,92 @@
+#!/bin/zsh
+
+# assumptions:
+# - target is aarch64
+# - main activity is .MainActivity
+
+set -e
+
+
+# parse arguments
+
+declare -a OPTS=()
+while (( "$#" )); do
+    case "$1" in
+        -*) OPTS+=("$1") ; shift ;;
+        *)  APP_ID="$1"  ; shift ;;
+    esac
+done
+APP_ROOT=/data/data/$APP_ID
+
+
+# check the environment
+
+if [ ! -d "$ANDROID_NDK_HOME" ]; then
+	echo "Error: ANDROID_NDK_HOME is not set properly."
+	exit
+fi
+
+if ! adb --version > /dev/null; then
+	echo "Error: adb command is no available."
+	exit
+fi
+
+if [ "$APP_ID" = "" ]; then
+	echo "Error: Application ID is missing. Please provide it as an argument."
+	exit
+fi
+
+
+# clean up anything left behind from earlier debugging sessions
+
+function remove_port_forwarding() {
+	TMP=$(adb forward --list | grep "$1" || true)
+	if [ "$TMP" = "" ]; then return; fi
+	while IFS= read -r LINE; do
+		PORT=$(echo $LINE | awk '{print $2}')
+		adb forward --remove $PORT
+	done <<< "$TMP"
+}
+
+adb shell am force-stop $APP_ID
+adb shell run-as $APP_ID killall lldb-server 2> /dev/null || true
+remove_port_forwarding "localabstract.*$APP_ID"
+remove_port_forwarding "localabstract.*gdbserver"
+adb shell  "run-as $APP_ID find $APP_ROOT -name 'gdbserver.*' -exec rm {} \;"
+
+
+# install lldb-server in the app sandbox
+
+adb shell mkdir -p /data/local/tmp/lldb-stuff
+adb push "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/lib/clang/18/lib/linux/aarch64/lldb-server" /data/local/tmp/lldb-stuff
+adb shell run-as $APP_ID mkdir -p $APP_ROOT/lldb-stuff
+adb shell "cat /data/local/tmp/lldb-stuff/lldb-server | run-as $APP_ID sh -c 'cat > $APP_ROOT/lldb-stuff/lldb-server'"
+adb shell run-as $APP_ID chmod 700 $APP_ROOT/lldb-stuff/lldb-server
+
+
+# start the app in debug mode
+
+adb shell am start -n $APP_ID/$APP_ID.MainActivity -a android.intent.action.MAIN -c android.intent.category.LAUNCHER $OPTS
+
+
+# wait for the app to be alive and its PID to be known
+
+APP_PID=""
+while [ "$APP_PID" = "" ]; do
+	sleep 0.1
+	APP_PID=$(adb shell pidof $APP_ID || echo -n "")
+done
+
+echo "App ID: $APP_ID"
+echo "Process ID: $APP_PID"
+
+cat >/tmp/lldb-target.env <<EOF
+APP_ID="$APP_ID"
+APP_PID="$APP_PID"
+EOF
+
+
+# start lldb-server
+
+echo "Starting lldb-server"
+adb shell run-as $APP_ID $APP_ROOT/lldb-stuff/lldb-server platform --server --listen unix-abstract:///$APP_ID-0/lldb-platform.sock --log-channels "lldb process:gdb-remote packets"
