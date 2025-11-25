@@ -1,0 +1,42 @@
+#!/bin/zsh
+
+set -e
+
+if [ ! -d "$ANDROID_NDK_HOME" ]; then
+	echo "Error: ANDROID_NDK_HOME is not set properly."
+	exit
+fi
+
+if [ "$1" = "" ]; then
+	source /tmp/lldb-target.env
+else
+	if ! adb --version > /dev/null; then
+		echo "Error: adb command is no available."
+		exit
+	fi
+
+	APP_ID="$1"
+	APP_PID=$(adb shell pidof $APP_ID || echo -n "")
+fi
+
+echo "App ID: $APP_ID"
+echo "Process ID: $APP_PID"
+
+export PYTHONHOME="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/python3"
+
+rm -rf ~/.lldb
+
+cat >/tmp/lldb-commands << EOF
+command alias a1 process attach --pid $APP_PID
+command alias a2 process handle SIGSEGV -n false -p true -s false
+command alias a3 process handle SIGBUS -n false -p true -s false
+command alias a4 process handle SIGCHLD -n false -p true -s false
+platform select remote-android
+platform connect unix-abstract-connect:///$APP_ID-0/lldb-platform.sock
+a1
+a2
+a3
+a4
+EOF
+
+"$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/lldb" -s /tmp/lldb-commands

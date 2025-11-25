@@ -65,9 +65,7 @@ $ ./gradlew :hello-swift-raw-jni:installDebug
 
 ## Start the APK and lldb-server on the target
 
-We use a shell script for this, which can be downloaded from [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-lldb-server).
-
-The script requires the app ID as an argument:
+We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-lldb-server). The script requires the app ID as an argument:
 
 ```console
 $ scripts/apk-lldb-server org.example.helloswift -D
@@ -91,3 +89,56 @@ There are a few options:
 2. Use the LLDB from the Swift Android SDK. It has full Swift support.
 3. Start a debugging session in VS Code, based on lldb-dap.
 
+### Use the LLDB from the Android NDK
+
+We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-ndk-lldb). The script requires the app ID as an argument:
+
+```console
+$ scripts/apk-ndk-lldb org.example.helloswift
+(lldb) platform select remote-android
+  Platform: remote-android
+ Connected: no
+(lldb) platform connect unix-abstract-connect:///org.example.helloswift-0/lldb-platform.sock
+  Platform: remote-android
+    Triple: aarch64-unknown-linux-android
+OS Version: 31 (5.10.110-android12-9-00004-gb92ac325368e-ab8731800)
+  Hostname: localhost
+ Connected: yes
+WorkingDir: /data/user/0/org.example.helloswift
+    Kernel: #1 SMP PREEMPT Tue Jun 14 13:40:53 UTC 2022
+error: Invalid URL: connect://[127.0.0.1]gdbserver.35df1d
+```
+
+Most of the time, the `Invalid URL` error appears. It is not critical but prevents the next commands in the script from executing automatically. To work around this, I defined aliases `a1`, `a2`, `a3`, and `a4` to quickly run these commands manually:
+
+```console
+(lldb) a1
+Process 8847 stopped
+* thread #1, name = 'mple.helloswift', stop reason = signal SIGSTOP
+    frame #0: 0x0000007b000ce35c libc.so`syscall + 28
+libc.so`syscall:
+->  0x7b000ce35c <+28>: svc    #0
+    0x7b000ce360 <+32>: cmn    x0, #0x1, lsl #12 ; =0x1000 
+    0x7b000ce364 <+36>: cneg   x0, x0, hi
+    0x7b000ce368 <+40>: b.hi   0x7b0011ee58   ; __set_errno_internal
+  thread #2, name = 'Runtime worker ', stop reason = signal SIGSTOP
+    frame #0: 0x0000007b000ce35c libc.so`syscall + 28
+...
+Architecture set to: aarch64-unknown-linux-android.
+(lldb) a2
+(lldb) a3
+(lldb) a4
+```
+
+You can now set a breakpoint and continue execution:
+
+```console
+(lldb) b Java_org_example_helloswift_MainActivity_stringFromSwift
+Breakpoint 1: where = libhelloswift.so`Java_org_example_helloswift_MainActivity_stringFromSwift, address = 0x00000077d6cdf368
+(lldb) cont
+Process 8847 resuming
+```
+
+TODO: explain how to dismiss the "Waiting For Debugger" popup.
+
+TODO: are the examples compiled in debug mode?
