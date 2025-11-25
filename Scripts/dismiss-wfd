@@ -1,0 +1,32 @@
+#!/bin/zsh
+
+set -e
+
+APP_ID="$1"
+
+if [ "$APP_ID" = "" ]; then
+	echo "Error: Application ID is missing. Please provide it as an argument."
+	exit
+fi
+
+if ! adb --version > /dev/null; then
+	echo "Error: adb command is no available."
+	exit
+fi
+
+if ! echo version | jdb  > /dev/null; then
+	echo "Error: jdb command is no available."
+	exit
+fi
+
+APP_PID=$(adb shell pidof $APP_ID || echo -n "")
+API_LEVEL=$(adb shell getprop ro.build.version.sdk)
+
+echo "App ID: $APP_ID"
+echo "Process ID: $APP_PID"
+echo "API Level: $API_LEVEL"
+
+PORT=$(adb forward tcp:0 jdwp:$APP_PID)
+echo "JDWP Port: $PORT"
+echo "threads" | jdb -attach $PORT
+adb forward --remove tcp:$PORT

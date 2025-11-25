@@ -49,7 +49,7 @@ We also need an app to debug. In this example, we use the `hello-swift-raw-jni` 
 
 ## Build an APK for debugging
 
-Open a terminal in the app’s root folder and run:
+Open a terminal in the `swift-android-examples` root folder and run:
 
 ```console
 $ ./gradlew :hello-swift-raw-jni:assembleDebug
@@ -139,9 +139,9 @@ Breakpoint 1: where = libhelloswift.so`Java_org_example_helloswift_MainActivity_
 Process 8847 resuming
 ```
 
-TODO: explain how to dismiss the "Waiting For Debugger" popup.
-
 TODO: are the examples compiled in debug mode?
+
+If you choose the `-D` option above, you need to dismiss the "Waiting For Debugger" popup. There is a dedicated section about this later in the document.
 
 ### Use the LLDB from the Swift Android SDK
 
@@ -201,8 +201,22 @@ Here we often hit another issue: the `a1` command (equivalent to `process attach
 
 TODO: explain workaround
 
-TODO: explain how to dismiss the "Waiting For Debugger" popup.
+TODO: some more lldb commands
+
+If you choose the `-D` option above, you need to dismiss the "Waiting For Debugger" popup. There is a dedicated section about this later in the document.
 
 ### Start a debugging session in VS Code
 
 TODO
+
+### Dismiss the "Waiting For Debugger" popup
+
+If you use the `-D` option when running `apk-lldb-server`, the app starts by displaying a "Waiting For Debugger" popup. At this stage, the app is in an early startup phase, stuck in a loop polling `Debug.isDebuggerConnected()` until it returns `true`. This allows us to attach the debugger and set breakpoints before the app continues running.
+
+In this early startup phase, the app is also listening for JDWP connections on a Unix‑domain socket. This is the socket used by the Java debugger to control the JVM. To dismiss the popup and continue execution, somebody needs to connect to this socket. We do this with a shell script, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/dismiss-wfd), which uses `jdb` (from the Java SDK) behind the scenes.
+
+```console
+$ scripts/dismiss-wfd org.example.helloswift
+```
+
+Another, more hacky, way to dismiss this popup is to search for `VMDebug_isDebuggerConnected()`, which is the C++ implementation of `Debug.isDebuggerConnected()`. By stopping just before the `ret` instruction and setting the `w0` register to `1`, we force the function to return true.
