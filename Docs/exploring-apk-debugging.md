@@ -142,3 +142,67 @@ Process 8847 resuming
 TODO: explain how to dismiss the "Waiting For Debugger" popup.
 
 TODO: are the examples compiled in debug mode?
+
+### Use the LLDB from the Swift Android SDK
+
+We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-swift-lldb). The script requires the app ID as an argument:
+
+```console
+$ scripts/apk-swift-lldb org.example.helloswift
+App ID: org.example.helloswift
+Process ID: 8847
+Swift Toolchain: /Users/gabriele/Library/Developer/Toolchains/swift-DEVELOPMENT-SNAPSHOT-2025-10-16-a.xctoolchain
+(lldb) command source -s 0 '/tmp/lldb-commands'
+Executing commands in '/tmp/lldb-commands'.
+(lldb) command alias a1 process attach --pid 8847
+(lldb) command alias a2 process handle SIGSEGV -n false -p true -s false
+(lldb) command alias a3 process handle SIGBUS -n false -p true -s false
+(lldb) command alias a4 process handle SIGCHLD -n false -p true -s false
+(lldb) platform select remote-android
+  Platform: remote-android
+ Connected: no
+(lldb) platform connect unix-abstract-connect:///org.example.helloswift-0/lldb-platform.sock
+  Platform: remote-android
+    Triple: aarch64-unknown-linux-android
+OS Version: 31 (5.10.110-android12-9-00004-gb92ac325368e-ab8731800)
+  Hostname: localhost
+ Connected: yes
+WorkingDir: /data/user/0/org.example.helloswift
+    Kernel: #1 SMP PREEMPT Tue Jun 14 13:40:53 UTC 2022
+error: Invalid URL: connect://[127.0.0.1]gdbserver.3312f5
+```
+
+Most of the time, the `Invalid URL` error appears. It is not critical but prevents the next commands in the script from executing automatically. To work around this, I defined aliases `a1`, `a2`, `a3`, and `a4` to quickly run these commands manually:
+
+```console
+(lldb) a1
+warning: (aarch64) /Users/gabriele/.lldb/module_cache/remote-android/.cache/4ECB2C57-D666-7E4A-94A7-3568CE392D22/app_process64 No LZMA support found for reading .gnu_debugdata section
+...
+Process 10971 stopped
+* thread #1, name = 'mple.helloswift', stop reason = signal SIGSTOP
+    frame #0: 0x0000007b000ce35c libc.so`syscall + 28
+libc.so`syscall:
+->  0x7b000ce35c <+28>: svc    #0
+    0x7b000ce360 <+32>: cmn    x0, #0x1, lsl #12 ; =0x1000 
+    0x7b000ce364 <+36>: cneg   x0, x0, hi
+    0x7b000ce368 <+40>: b.hi   0x7b0011ee58   ; __set_errno_internal
+  thread #2, name = 'Runtime worker ', stop reason = signal SIGSTOP
+    frame #0: 0x0000007b000ce35c libc.so`syscall + 28
+...
+Target 0: (app_process64) stopped.
+Executable binary set to "/Users/gabriele/.lldb/module_cache/remote-android/.cache/4ECB2C57-D666-7E4A-94A7-3568CE392D22/app_process64".
+Architecture set to: aarch64-unknown-linux-android.
+(lldb) a2
+(lldb) a3
+(lldb) a4
+```
+
+Here we often hit another issue: the `a1` command (equivalent to `process attach --pid 8847`) often crashes or hangs `lldb`.
+
+TODO: explain workaround
+
+TODO: explain how to dismiss the "Waiting For Debugger" popup.
+
+### Start a debugging session in VS Code
+
+TODO
