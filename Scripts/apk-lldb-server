@@ -64,7 +64,7 @@ adb shell "cat /data/local/tmp/lldb-stuff/lldb-server | run-as $APP_ID sh -c 'ca
 adb shell run-as $APP_ID chmod 700 $APP_ROOT/lldb-stuff/lldb-server
 
 
-# start the app in debug mode
+# start the app
 
 adb shell am start -n $APP_ID/$APP_ID.MainActivity -a android.intent.action.MAIN -c android.intent.category.LAUNCHER $OPTS
 
