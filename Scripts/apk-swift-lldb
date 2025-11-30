@@ -7,9 +7,8 @@ if [ ! -d "$ANDROID_NDK_HOME" ]; then
 	exit
 fi
 
-if [ "$1" = "" ]; then
-	source /tmp/lldb-target.env
-else
+if [ "$1" != "" ]; then
+
 	if ! adb --version > /dev/null; then
 		echo "Error: adb command is no available."
 		exit
@@ -17,27 +16,30 @@ else
 
 	APP_ID="$1"
 	APP_PID=$(adb shell pidof $APP_ID || echo -n "")
+
+	echo "App ID: $APP_ID"
+	echo "Process ID: $APP_PID"
+
+	cat >/tmp/lldb-commands <<- EOF
+		command alias a0 platform connect unix-abstract-connect:///$APP_ID-0/lldb-platform.sock
+		command alias a1 process attach --pid $APP_PID
+		command alias a1n process attach --name $APP_ID
+		command alias a2 process handle SIGSEGV -n false -p true -s false
+		command alias a3 process handle SIGBUS -n false -p true -s false
+		command alias a4 process handle SIGCHLD -n false -p true -s false
+		platform select remote-android
+		a0
+		a1
+		a2
+		a3
+		a4
+	EOF
 fi
 
+# when trying to reproduce lldb issues, it's sometimes useful to start with a clean cache
+# rm -rf ~/.lldb || true
+
 SWIFT_TOOLCHAIN=$(swiftly use --print-location)
+LLDB="$SWIFT_TOOLCHAIN/usr/bin/lldb"
 
-echo "App ID: $APP_ID"
-echo "Process ID: $APP_PID"
-echo "Swift Toolchain: $SWIFT_TOOLCHAIN"
-
-rm -rf ~/.lldb
-
-cat >/tmp/lldb-commands << EOF
-command alias a1 process attach --pid $APP_PID
-command alias a2 process handle SIGSEGV -n false -p true -s false
-command alias a3 process handle SIGBUS -n false -p true -s false
-command alias a4 process handle SIGCHLD -n false -p true -s false
-platform select remote-android
-platform connect unix-abstract-connect:///$APP_ID-0/lldb-platform.sock
-a1
-a2
-a3
-a4
-EOF
-
-$SWIFT_TOOLCHAIN/usr/bin/lldb -s /tmp/lldb-commands
+"$LLDB" -s /tmp/lldb-commands

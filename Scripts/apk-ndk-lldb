@@ -36,10 +36,10 @@ if [ "$1" != "" ]; then
 	EOF
 fi
 
-export PYTHONHOME="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/python3"
-LLDB="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/lldb"
-
 # when trying to reproduce lldb issues, it's sometimes useful to start with a clean cache
 rm -rf ~/.lldb || true
+
+export PYTHONHOME="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/python3"
+LLDB="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/lldb"
 
 "$LLDB" -s /tmp/lldb-commands

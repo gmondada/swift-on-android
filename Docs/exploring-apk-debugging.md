@@ -93,7 +93,7 @@ There are a few options:
 
 ### Use the LLDB from the Android NDK
 
-We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-ndk-lldb). We pass the app ID as an argument, but this is optinal. When omitted, the script just uses the data stored by  `apk-lldb-server` in the `/tmp` folder.
+We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-ndk-lldb). We pass the app ID as an argument, but this is optional. When omitted, the script just uses the data stored by  `apk-lldb-server` in the `/tmp` folder.
 
 ```console
 $ ./apk-ndk-lldb org.example.helloswift
@@ -142,13 +142,11 @@ Breakpoint 1: where = libhelloswift.so`Java_org_example_helloswift_MainActivity_
 Process 8847 resuming
 ```
 
-TODO: are the examples compiled in debug mode?
-
 If you choose the `-D` option above, you need to dismiss the "Waiting For Debugger" popup. There is a dedicated section about this later in the document.
 
 ### Use the LLDB from the Swift toolchain
 
-We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-swift-lldb). The script requires the app ID as an argument:
+We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-swift-lldb). We pass the app ID as an argument, but this is optional. When omitted, the script just uses the data stored by `apk-lldb-server` in the `/tmp` folder.
 
 ```console
 $ scripts/apk-swift-lldb org.example.helloswift
@@ -175,7 +173,7 @@ WorkingDir: /data/user/0/org.example.helloswift
 error: Invalid URL: connect://[127.0.0.1]gdbserver.3312f5
 ```
 
-Most of the time, the `Invalid URL` error appears. It is not critical but prevents the next commands in the script from executing automatically. To work around this, I defined aliases `a1`, `a2`, `a3`, and `a4` to quickly run these commands manually:
+Most of the time, the `Invalid URL` error appears. This looks like a bug, but it's not critical, it just prevents the next commands in the script from executing automatically. To work around this, there are the aliases `a1`, `a2`, `a3`, and `a4` to quickly run these commands manually:
 
 ```console
 (lldb) a1
@@ -189,8 +187,6 @@ libc.so`syscall:
     0x7b000ce360 <+32>: cmn    x0, #0x1, lsl #12 ; =0x1000 
     0x7b000ce364 <+36>: cneg   x0, x0, hi
     0x7b000ce368 <+40>: b.hi   0x7b0011ee58   ; __set_errno_internal
-  thread #2, name = 'Runtime worker ', stop reason = signal SIGSTOP
-    frame #0: 0x0000007b000ce35c libc.so`syscall + 28
 ...
 Target 0: (app_process64) stopped.
 Executable binary set to "/Users/gabriele/.lldb/module_cache/remote-android/.cache/4ECB2C57-D666-7E4A-94A7-3568CE392D22/app_process64".
@@ -200,7 +196,7 @@ Architecture set to: aarch64-unknown-linux-android.
 (lldb) a4
 ```
 
-Here we often hit another issue: the `a1` command (equivalent to `process attach --pid 8847`) often crashes or hangs `lldb`.
+Here we often hit another issue: the `a1` command (equivalent to `process attach --pid 8847`) often crashes or hangs `lldb`. Some of these bugs have been corrected in the llvm project but the fixes are not yet included in the Swift toolchain.
 
 TODO: explain workaround
 
