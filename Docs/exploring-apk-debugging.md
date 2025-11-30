@@ -68,7 +68,7 @@ $ ./gradlew :hello-swift-raw-jni:installDebug
 We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-lldb-server). The script requires the app ID as an argument:
 
 ```console
-$ scripts/apk-lldb-server org.example.helloswift -D
+$ ./apk-lldb-server org.example.helloswift -D
 ```
 
 The `-D` option makes the app display the "Waiting for Debugger" popup. In this mode, the app does not fully start, giving the debugger a chance to connect and set all breakpoints before the app runs.
@@ -80,6 +80,8 @@ To stop `lldb-server`, press **CTRL-C**. To kill the app, use:
 ```console
 $ adb shell am force-stop org.example.helloswift
 ```
+
+NOTE: The `apk-lldb-server` script creates the `/tmp/lldb-commands` file containing the commands that `lldb` needs to connect to `lldb-server` and attach to the app process. It also stores the app ID and PID in `/tmp/lldb-target.env`.
 
 ## Start the debugging session
 
