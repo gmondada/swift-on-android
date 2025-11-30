@@ -93,10 +93,10 @@ There are a few options:
 
 ### Use the LLDB from the Android NDK
 
-We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-ndk-lldb). The script requires the app ID as an argument:
+We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-ndk-lldb). We pass the app ID as an argument, but this is optinal. When omitted, the script just uses the data stored by  `apk-lldb-server` in the `/tmp` folder.
 
 ```console
-$ scripts/apk-ndk-lldb org.example.helloswift
+$ ./apk-ndk-lldb org.example.helloswift
 (lldb) platform select remote-android
   Platform: remote-android
  Connected: no
@@ -111,7 +111,7 @@ WorkingDir: /data/user/0/org.example.helloswift
 error: Invalid URL: connect://[127.0.0.1]gdbserver.35df1d
 ```
 
-Most of the time, the `Invalid URL` error appears. It is not critical but prevents the next commands in the script from executing automatically. To work around this, I defined aliases `a1`, `a2`, `a3`, and `a4` to quickly run these commands manually:
+Most of the time, the `Invalid URL` error appears. This looks like a bug, but it's not critical, it just prevents the next commands in the script from executing automatically. To work around this, there are the aliases `a1`, `a2`, `a3`, and `a4` to quickly run these commands manually:
 
 ```console
 (lldb) a1
@@ -123,13 +123,14 @@ libc.so`syscall:
     0x7b000ce360 <+32>: cmn    x0, #0x1, lsl #12 ; =0x1000 
     0x7b000ce364 <+36>: cneg   x0, x0, hi
     0x7b000ce368 <+40>: b.hi   0x7b0011ee58   ; __set_errno_internal
-  thread #2, name = 'Runtime worker ', stop reason = signal SIGSTOP
-    frame #0: 0x0000007b000ce35c libc.so`syscall + 28
 ...
 Architecture set to: aarch64-unknown-linux-android.
 (lldb) a2
+...
 (lldb) a3
+...
 (lldb) a4
+...
 ```
 
 You can now set a breakpoint and continue execution:
