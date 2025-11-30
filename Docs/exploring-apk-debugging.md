@@ -88,7 +88,7 @@ NOTE: The `apk-lldb-server` script creates the `/tmp/lldb-commands` file contain
 There are a few options:
 
 1. Use the LLDB from the Android NDK. This allows listing symbols, disassembly code, etc but not provide Swift-specific information. This is sometimes useful to determine whether an issue comes from the LLVM LLDB or the Swift LLDB.
-2. Use the LLDB from the Swift Android SDK. It has full Swift support.
+2. Use the LLDB from the Swift toolchain. It has full Swift support.
 3. Start a debugging session in VS Code, based on lldb-dap.
 
 ### Use the LLDB from the Android NDK
@@ -145,7 +145,7 @@ TODO: are the examples compiled in debug mode?
 
 If you choose the `-D` option above, you need to dismiss the "Waiting For Debugger" popup. There is a dedicated section about this later in the document.
 
-### Use the LLDB from the Swift Android SDK
+### Use the LLDB from the Swift toolchain
 
 We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-swift-lldb). The script requires the app ID as an argument:
 
