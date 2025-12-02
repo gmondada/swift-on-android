@@ -1,7 +1,6 @@
 #!/bin/zsh
 
 # assumptions:
-# - target is aarch64
 # - main activity is .MainActivity
 
 set -e
@@ -36,7 +35,6 @@ if [ "$APP_ID" = "" ]; then
 	exit
 fi
 
-
 # clean up anything left behind from earlier debugging sessions
 
 function remove_port_forwarding() {
@@ -57,8 +55,14 @@ adb shell  "run-as $APP_ID find $APP_ROOT -name 'gdbserver.*' -exec rm {} \;"
 
 # install lldb-server in the app sandbox
 
+TARGET_ARCH=$(adb shell uname -m)
+LLDB_SERVER="$(echo $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-*/lib/clang/*/lib/linux/$TARGET_ARCH/lldb-server)"
+if [ ! -f "$LLDB_SERVER" ]; then
+	echo "Error: lldb-server not found for target architecture: $TARGET_ARCH"
+	exit
+fi
 adb shell mkdir -p /data/local/tmp/lldb-stuff
-adb push "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/lib/clang/18/lib/linux/aarch64/lldb-server" /data/local/tmp/lldb-stuff
+adb push "$LLDB_SERVER" /data/local/tmp/lldb-stuff
 adb shell run-as $APP_ID mkdir -p $APP_ROOT/lldb-stuff
 adb shell "cat /data/local/tmp/lldb-stuff/lldb-server | run-as $APP_ID sh -c 'cat > $APP_ROOT/lldb-stuff/lldb-server'"
 adb shell run-as $APP_ID chmod 700 $APP_ROOT/lldb-stuff/lldb-server
@@ -111,3 +115,4 @@ EOF
 
 echo "Starting lldb-server"
 adb shell run-as $APP_ID $APP_ROOT/lldb-stuff/lldb-server platform --server --listen unix-abstract:///$APP_ID-0/lldb-platform.sock --log-channels "lldb process:gdb-remote packets"
+#adb shell /data/local/tmp/lldb-stuff/lldb-server platform --server --listen unix-abstract:///$APP_ID-0/lldb-platform.sock --log-channels "lldb process:gdb-remote packets"
