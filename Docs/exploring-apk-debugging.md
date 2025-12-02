@@ -196,7 +196,7 @@ Architecture set to: aarch64-unknown-linux-android.
 (lldb) a4
 ```
 
-Here we often hit another issue: the `a1` command (equivalent to `process attach --pid 8847`) often crashes or hangs `lldb`. Some of these bugs have been corrected in the llvm project but the fixes are not yet included in the Swift toolchain.
+Here we often hit another issue: the `a1` command (equivalent to `process attach --pid 8847`) often crashes or hangs `lldb`. Some of these bugs have been corrected in the llvm project (see below).
 
 TODO: explain workaround
 
@@ -219,3 +219,42 @@ $ scripts/dismiss-wfd org.example.helloswift
 ```
 
 Another, more hacky, way to dismiss this popup is to search for `VMDebug_isDebuggerConnected()`, which is the C++ implementation of `Debug.isDebuggerConnected()`. By stopping just before the `ret` instruction and setting the `w0` register to `1`, we force the function to return true.
+
+TODO: explore the feasibility of loading an agent which, like the JDWP agent, overrides `Debug.isDebuggerConnected()`.
+
+## Issues
+
+### Invalid URL
+
+When running the `platform connect...` command in `lldb`, we get this error:
+
+```console
+error: Invalid URL: connect://[127.0.0.1]gdbserver.3312f5
+```
+
+This seems to come from `lldb-server` which, on connection, reports having a process ready for debugging on that GDB socket (on qQueryGDBServer), which is not true. We use the lldb-server provided by the NDK. Moving to a more recent NDK does not change the behavior.
+
+TODO: verify if Andorid Studio comes with its own version of lldb
+
+### Crash when loading modules from the target
+
+When running  `process attach...`,  `lldb` often crashes. This happens when pulling modules from the target via ADB. This problem has already been fixed in the llvm.org project, and the related commits are in the Swift project, on branch `next`. To apply them, go in `llvm-project` and cherry-pick the following commits:
+
+```console
+git cherry-pick bcb48aa5b2cfc75967c734a97201e0c91273169d
+git cherry-pick 91418ecbdef0e259f83e6ddac5ddfc22a8b6eced
+git cherry-pick 223cfa8018595ff2a809b4e10701bfea884af709
+git cherry-pick a19c9a8ba1b01f324f893481d825a375a5a68bc6
+git cherry-pick 55b0d143d654d9f6c0bc515eaf5a66980a151a4d
+git cherry-pick f8cb6cd989c8159ede0b454a433dd2b5632c1cb6
+```
+
+### Attach by name
+
+Attaching a process by name does no work, at least not with the `lldb` provides in the NDK or in the swift toolchain. A fix exists in the llvm.org project. It's part of the commits listed above.
+
+### Deadlock when loading modules
+
+The swift toolchain `lldb` hangs on `process attach...`, when loading modules.
+
+TODO: investigate
