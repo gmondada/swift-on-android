@@ -2,13 +2,6 @@
 
 set -e
 
-APP_ID="$1"
-
-if [ "$APP_ID" = "" ]; then
-	echo "Error: Application ID is missing. Please provide it as an argument."
-	exit
-fi
-
 if ! adb --version > /dev/null; then
 	echo "Error: adb command is no available."
 	exit
@@ -19,11 +12,17 @@ if ! echo version | jdb  > /dev/null; then
 	exit
 fi
 
-APP_PID=$(adb shell pidof $APP_ID || echo -n "")
-API_LEVEL=$(adb shell getprop ro.build.version.sdk)
+if [ "$1" = "" ]; then
+	source /tmp/lldb-target.env
+else
+	APP_ID="$1"
+	APP_PID=$(adb shell pidof $APP_ID || echo -n "")
+fi
 
 echo "App ID: $APP_ID"
 echo "Process ID: $APP_PID"
+
+API_LEVEL=$(adb shell getprop ro.build.version.sdk)
 echo "API Level: $API_LEVEL"
 
 PORT=$(adb forward tcp:0 jdwp:$APP_PID)
