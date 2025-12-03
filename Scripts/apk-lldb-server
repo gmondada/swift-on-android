@@ -56,6 +56,7 @@ adb shell  "run-as $APP_ID find $APP_ROOT -name 'gdbserver.*' -exec rm {} \;"
 # install lldb-server in the app sandbox
 
 TARGET_ARCH=$(adb shell uname -m)
+#LLDB_SERVER="/Applications/Android Studio.app/Contents/plugins/android-ndk/resources/lldb/android/arm64-v8a/lldb-server"
 LLDB_SERVER="$(echo $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-*/lib/clang/*/lib/linux/$TARGET_ARCH/lldb-server)"
 if [ ! -f "$LLDB_SERVER" ]; then
 	echo "Error: lldb-server not found for target architecture: $TARGET_ARCH"

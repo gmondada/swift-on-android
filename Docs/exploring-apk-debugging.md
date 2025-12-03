@@ -271,9 +271,7 @@ When running the `platform connect...` command in `lldb`, we get this error:
 error: Invalid URL: connect://[127.0.0.1]gdbserver.3312f5
 ```
 
-This seems to come from `lldb-server` which, on connection, reports having a process ready for debugging on that GDB socket (on qQueryGDBServer), which is not true. We use the lldb-server provided by the NDK. Moving to a more recent NDK does not change the behavior.
-
-TODO: verify if Andorid Studio comes with its own version of lldb
+This seems to come from `lldb-server` which, on connection, reports having a process ready for debugging on that GDB socket (on qQueryGDBServer), which is not true. We use the `lldb-server` provided by the NDK. Moving to a more recent NDK does not change the behavior. Same with `lldb-server` embedded in Android Studio.
 
 ### Crash when loading modules from the target
 
