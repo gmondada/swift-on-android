@@ -42,4 +42,4 @@ rm -rf ~/.lldb || true
 export PYTHONHOME="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/python3"
 LLDB="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin/lldb"
 
-"$LLDB" -s /tmp/lldb-commands
+"$LLDB" -o "command source -s 0 -e 0 /tmp/lldb-commands"

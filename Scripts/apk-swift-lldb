@@ -42,4 +42,4 @@ fi
 SWIFT_TOOLCHAIN=$(swiftly use --print-location)
 LLDB="$SWIFT_TOOLCHAIN/usr/bin/lldb"
 
-"$LLDB" -s /tmp/lldb-commands
+"$LLDB" -o "command source -s 0 -e 0 /tmp/lldb-commands"

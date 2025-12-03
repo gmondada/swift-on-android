@@ -109,29 +109,11 @@ OS Version: 31 (5.10.110-android12-9-00004-gb92ac325368e-ab8731800)
 WorkingDir: /data/user/0/org.example.helloswift
     Kernel: #1 SMP PREEMPT Tue Jun 14 13:40:53 UTC 2022
 error: Invalid URL: connect://[127.0.0.1]gdbserver.35df1d
-```
-
-Most of the time, the `Invalid URL` error appears. This looks like a bug, but it's not critical, it just prevents the next commands in the script from executing automatically. To work around this, there are the aliases `a1`, `a2`, `a3`, and `a4` to quickly run these commands manually:
-
-```console
-(lldb) a1
-Process 8847 stopped
-* thread #1, name = 'mple.helloswift', stop reason = signal SIGSTOP
-    frame #0: 0x0000007b000ce35c libc.so`syscall + 28
-libc.so`syscall:
-->  0x7b000ce35c <+28>: svc    #0
-    0x7b000ce360 <+32>: cmn    x0, #0x1, lsl #12 ; =0x1000 
-    0x7b000ce364 <+36>: cneg   x0, x0, hi
-    0x7b000ce368 <+40>: b.hi   0x7b0011ee58   ; __set_errno_internal
-...
-Architecture set to: aarch64-unknown-linux-android.
-(lldb) a2
-...
-(lldb) a3
-...
-(lldb) a4
+(lldb) process attach --pid 8242
 ...
 ```
+
+NOTE: The `Invalid URL` error looks like a bug, but it's not critical. See below.
 
 You can now set a breakpoint and continue execution:
 
@@ -171,36 +153,19 @@ OS Version: 31 (5.10.110-android12-9-00004-gb92ac325368e-ab8731800)
 WorkingDir: /data/user/0/org.example.helloswift
     Kernel: #1 SMP PREEMPT Tue Jun 14 13:40:53 UTC 2022
 error: Invalid URL: connect://[127.0.0.1]gdbserver.3312f5
-```
-
-Most of the time, the `Invalid URL` error appears. This looks like a bug, but it's not critical, it just prevents the next commands in the script from executing automatically. To work around this, there are the aliases `a1`, `a2`, `a3`, and `a4` to quickly run these commands manually:
-
-```console
 (lldb) a1
-warning: (aarch64) /Users/gabriele/.lldb/module_cache/remote-android/.cache/4ECB2C57-D666-7E4A-94A7-3568CE392D22/app_process64 No LZMA support found for reading .gnu_debugdata section
 ...
-Process 10971 stopped
-* thread #1, name = 'mple.helloswift', stop reason = signal SIGSTOP
-    frame #0: 0x0000007b000ce35c libc.so`syscall + 28
-libc.so`syscall:
-->  0x7b000ce35c <+28>: svc    #0
-    0x7b000ce360 <+32>: cmn    x0, #0x1, lsl #12 ; =0x1000 
-    0x7b000ce364 <+36>: cneg   x0, x0, hi
-    0x7b000ce368 <+40>: b.hi   0x7b0011ee58   ; __set_errno_internal
-...
-Target 0: (app_process64) stopped.
-Executable binary set to "/Users/gabriele/.lldb/module_cache/remote-android/.cache/4ECB2C57-D666-7E4A-94A7-3568CE392D22/app_process64".
-Architecture set to: aarch64-unknown-linux-android.
-(lldb) a2
-(lldb) a3
-(lldb) a4
 ```
 
-Here we often hit another issue: the `a1` command (equivalent to `process attach --pid 8847`) often crashes or hangs `lldb`. Some of these bugs have been corrected in the llvm project (see below).
+NOTE: The `Invalid URL` error looks like a bug, but it's not critical. See below.
+
+Here we often have a problem: the `a1` command (equivalent to `process attach --pid xxx`) often crashes or hangs `lldb`. Some of these bugs have been corrected in the llvm project (see below).
 
 TODO: explain workaround
 
 TODO: some more lldb commands
+
+TODO: explain why we use a1, a2, ... aliases.
 
 If you choose the `-D` option above, you need to dismiss the "Waiting For Debugger" popup. There is a dedicated section about this later in the document.
 
@@ -232,11 +197,7 @@ Then, create or edit `.vscode/launch.json` and add:
             "request": "launch",
             "name": "Hello Swift",
             "launchCommands": [
-                "command source -s 0 '/tmp/lldb-commands'",
-                "a1",
-                "a2",
-                "a3",
-                "a4"
+                "command source -s 0 -e 0 '/tmp/lldb-commands'"
             ],
         }
     ]
