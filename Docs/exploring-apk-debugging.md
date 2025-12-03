@@ -206,7 +206,46 @@ If you choose the `-D` option above, you need to dismiss the "Waiting For Debugg
 
 ### Start a debugging session in VS Code
 
-TODO
+We assume VS Code has the official Swift extensions installed, including "Swift" (from swift.org) and "LLDB DAP" (from llvm.org).
+
+Create or edit `.vscode/settings.json` and add:
+
+```json
+{
+    "lldb-dap.executable-path": "xxx/usr/bin/lldb-dap"
+}
+```
+
+Replace `xxx` with the path to your toolchain. If you’re unsure where it is, run the following command:
+
+```bash
+swiftly use --print-location
+```
+
+Then, create or edit `.vscode/launch.json` and add:
+
+```json
+{
+    "configurations": [
+        {
+            "type": "lldb-dap",
+            "request": "launch",
+            "name": "Hello Swift",
+            "launchCommands": [
+                "command source -s 0 '/tmp/lldb-commands'",
+                "a1",
+                "a2",
+                "a3",
+                "a4"
+            ],
+        }
+    ]
+}
+```
+
+In VS Code, open the **Run & Debug** tab on the left, select "Hello Swift" in the dropdown menu, and press the green ▶️ button. The debug session should start as expected.
+
+If you choose the `-D` option above, you need to dismiss the "Waiting For Debugger" popup. There is a dedicated section about this below.
 
 ### Dismiss the "Waiting For Debugger" popup
 
