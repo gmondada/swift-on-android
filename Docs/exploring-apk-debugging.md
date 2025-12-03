@@ -292,6 +292,8 @@ git cherry-pick f8cb6cd989c8159ede0b454a433dd2b5632c1cb6
 
 Attaching a process by name does no work, at least not with the `lldb` provides in the NDK or in the swift toolchain. A fix exists in the llvm.org project. It's part of the commits listed above.
 
+NOTE: On Android, attaching by name is equivalent to attaching by app ID, since processes spawned by Zygote use the app ID as their process name.
+
 ### Deadlock when loading modules
 
 The swift toolchain `lldb` hangs on `process attach...`, when loading modules.
