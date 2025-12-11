@@ -63,6 +63,8 @@ This step can actually be skipped, as the command in the next section will build
 $ ./gradlew :hello-swift-raw-jni:installDebug
 ```
 
+NOTE: Should we add `-Pandroid.injected.testOnly=true` as done by Android Studio?
+
 ## Start the APK and lldb-server on the target
 
 We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-lldb-server). The script requires the app ID as an argument:
@@ -159,7 +161,7 @@ error: Invalid URL: connect://[127.0.0.1]gdbserver.3312f5
 
 NOTE: The `Invalid URL` error looks like a bug, but it's not critical. See below.
 
-Here we often have a problem: the `a1` command (equivalent to `process attach --pid xxx`) often crashes or hangs `lldb`. Some of these bugs have been corrected in the llvm project (see below).
+Here we often have a problem: the `a1` command (equivalent to `process attach --pid xxx`) crashes or hangs `lldb`. Some of these bugs have been corrected in the llvm project (see below).
 
 TODO: explain workaround
 
@@ -255,6 +257,9 @@ NOTE: On Android, attaching by name is equivalent to attaching by app ID, since 
 
 ### Deadlock when loading modules
 
-The swift toolchain `lldb` hangs on `process attach...`, when loading modules.
+The swift toolchain `lldb` hangs on `process attach...`, when loading modules. A fix is already available in brach `next`. Just cherry-pick it:
 
-TODO: investigate
+```console
+git cherry-pick 7fb620a5cc02a511a019d6918b0993b4cbdea825
+git cherry-pick 66d5f6a60550a123638bbdf91ec8cff76cb29c5a
+```
