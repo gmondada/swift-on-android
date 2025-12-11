@@ -81,7 +81,7 @@ To stop `lldb-server`, press **CTRL-C**. To kill the app, use:
 $ adb shell am force-stop org.example.helloswift
 ```
 
-NOTE: The `apk-lldb-server` script creates the `/tmp/lldb-commands` file containing the commands that `lldb` needs to connect to `lldb-server` and attach to the app process. It also stores the app ID and PID in `/tmp/lldb-target.env`.
+NOTE: The `apk-lldb-server` script creates the `~/.lldb/android/last-start-commands` file containing the commands that `lldb` needs to connect to `lldb-server` and attach to the app process. It also stores the app ID and PID in `~/.lldb/android/last-env`.
 
 ## Start the debugging session
 
@@ -93,7 +93,7 @@ There are a few options:
 
 ### Use the LLDB from the Android NDK
 
-We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-ndk-lldb). We pass the app ID as an argument, but this is optional. When omitted, the script just uses the data stored by  `apk-lldb-server` in the `/tmp` folder.
+We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-ndk-lldb). We pass the app ID as an argument, but this is optional. When omitted, the script just uses the data stored by  `apk-lldb-server` in the `~/.lldb/android` folder.
 
 ```console
 $ ./apk-ndk-lldb org.example.helloswift
@@ -128,15 +128,15 @@ If you choose the `-D` option above, you need to dismiss the "Waiting For Debugg
 
 ### Use the LLDB from the Swift toolchain
 
-We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-swift-lldb). We pass the app ID as an argument, but this is optional. When omitted, the script just uses the data stored by `apk-lldb-server` in the `/tmp` folder.
+We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-swift-lldb). We pass the app ID as an argument, but this is optional. When omitted, the script just uses the data stored by `apk-lldb-server` in the `~/.lldb/android` folder.
 
 ```console
 $ scripts/apk-swift-lldb org.example.helloswift
 App ID: org.example.helloswift
 Process ID: 8847
 Swift Toolchain: /Users/gabriele/Library/Developer/Toolchains/swift-DEVELOPMENT-SNAPSHOT-2025-10-16-a.xctoolchain
-(lldb) command source -s 0 '/tmp/lldb-commands'
-Executing commands in '/tmp/lldb-commands'.
+(lldb) command source -s 0 '~/.lldb/android/last-start-commands'
+Executing commands in '~/.lldb/android/last-start-commands'.
 (lldb) command alias a1 process attach --pid 8847
 (lldb) command alias a2 process handle SIGSEGV -n false -p true -s false
 (lldb) command alias a3 process handle SIGBUS -n false -p true -s false
@@ -197,7 +197,7 @@ Then, create or edit `.vscode/launch.json` and add:
             "request": "launch",
             "name": "Hello Swift",
             "launchCommands": [
-                "command source -s 0 -e 0 '/tmp/lldb-commands'"
+                "command source -s 0 -e 0 '~/.lldb/android/last-start-commands'"
             ],
         }
     ]
