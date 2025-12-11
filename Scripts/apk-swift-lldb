@@ -21,7 +21,7 @@ if [ "$1" != "" ]; then
 	echo "Process ID: $APP_PID"
 
 	mkdir -p ~/.lldb/android
-	cat >~/.lldb/android/last-start-commands <<- EOF
+	cat > ~/.lldb/android/last-start-commands <<- EOF
 		command alias a0 platform connect unix-abstract-connect:///$APP_ID/lldb-platform.sock
 		command alias a1 process attach --pid $APP_PID
 		command alias a1n process attach --name $APP_ID

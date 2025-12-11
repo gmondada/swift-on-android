@@ -89,7 +89,7 @@ echo "Process ID: $APP_PID"
 # save environment
 
 mkdir -p ~/.lldb/android
-cat >~/.lldb/android/last-env <<EOF
+cat > ~/.lldb/android/last-env << EOF
 APP_ID="$APP_ID"
 APP_PID="$APP_PID"
 EOF
@@ -97,7 +97,7 @@ EOF
 
 # save lldb startup commands
 
-cat >~/.lldb/android/last-start-commands << EOF
+cat > ~/.lldb/android/last-start-commands << EOF
 platform select remote-android
 command alias a0 platform connect unix-abstract-connect:///$APP_ID/lldb-platform.sock
 command alias a1 process attach --pid $APP_PID
