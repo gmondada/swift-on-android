@@ -98,7 +98,7 @@ EOF
 
 cat >/tmp/lldb-commands << EOF
 platform select remote-android
-command alias a0 platform connect unix-abstract-connect:///$APP_ID-0/lldb-platform.sock
+command alias a0 platform connect unix-abstract-connect:///$APP_ID/lldb-platform.sock
 command alias a1 process attach --pid $APP_PID
 command alias a1n process attach --name $APP_ID
 command alias a2 process handle SIGSEGV -n false -p true -s false
@@ -115,5 +115,5 @@ EOF
 # start lldb-server
 
 echo "Starting lldb-server"
-adb shell run-as $APP_ID $APP_ROOT/lldb-stuff/lldb-server platform --server --listen unix-abstract:///$APP_ID-0/lldb-platform.sock --log-channels "lldb process:gdb-remote packets"
+adb shell run-as $APP_ID $APP_ROOT/lldb-stuff/lldb-server platform --server --listen unix-abstract:///$APP_ID/lldb-platform.sock --log-channels "lldb process:gdb-remote packets"
 #adb shell /data/local/tmp/lldb-stuff/lldb-server platform --server --listen unix-abstract:///$APP_ID-0/lldb-platform.sock --log-channels "lldb process:gdb-remote packets"

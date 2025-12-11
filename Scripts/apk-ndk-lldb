@@ -21,7 +21,7 @@ if [ "$1" != "" ]; then
 	echo "Process ID: $APP_PID"
 
 	cat >/tmp/lldb-commands <<- EOF
-		command alias a0 platform connect unix-abstract-connect:///$APP_ID-0/lldb-platform.sock
+		command alias a0 platform connect unix-abstract-connect:///$APP_ID/lldb-platform.sock
 		command alias a1 process attach --pid $APP_PID
 		command alias a1n process attach --name $APP_ID
 		command alias a2 process handle SIGSEGV -n false -p true -s false
