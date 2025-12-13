@@ -263,3 +263,52 @@ The swift toolchain `lldb` hangs on `process attach...`, when loading modules. A
 git cherry-pick 7fb620a5cc02a511a019d6918b0993b4cbdea825
 git cherry-pick 66d5f6a60550a123638bbdf91ec8cff76cb29c5a
 ```
+
+### Swift library not visible from lldb
+
+After having changed some Swift code and rebuilt the APK, `lldb` stops making the Swift code debuggable. Breakpoints cannot be set, and the command `image list -b libhelloswift.so` acts as if the image does not exist. However, we know the shared library has been loaded because the Swift code is running.
+
+Analysis:
+
+* `lldb` gets notified when the shared object is loaded (`DynamicLoaderPOSIXDYLD::RefreshModules()` gets called and sees the new module).
+* It then asks lldb-server for the `ModuleSpec` through the GDB port, command `qModuleInfo`. It provides the module path, which points to the shared object inside the APK: `/data/app/~~JD12dD8imR6vc8siCWvUtQ==/org.example.helloswift-XNHfP5zPCR2PCBxNvXJErg==/base.apk!/lib/arm64-v8a/libhelloswift.so`.
+* `lldb-server` replies with an error, and `lldb` ignores this module.
+* When changing some Swift code and rebuilding the APK, the shared library appears as the last element in the APK. This can be seen with shell command `unzip -lv ./hello-swift-raw-jni/build/outputs/apk/debug/hello-swift-raw-jni-debug.apk`. In that case, I always hit the problem. By changing the manifast file or anything else that makes the shared object moving to the second to last or any other position, the problem disappears.
+* The problam is visible with lldb-server from NDK 29.0.14206865 and from Android Studio.
+
+Workaround:
+
+Rebuild the APK entirerly, or make any change other than the shared object just before installing. Example:
+
+```console 
+./gradlew :hello-swift-raw-jni:assembleDebug
+./gradlew :hello-swift-raw-jni:installDebug -Pandroid.injected.testOnly=true
+```
+
+The `-Pandroid.injected.testOnly=true` option causes a change in the manifest, which ends up in being the last file in the APK.
+
+### Assertion on UnsafeMutablePointer<JNIEnv?> 
+
+When pausing execution in a context involving a UnsafeMutablePointer<JNIEnv?>, `lldb` aborts on this assertion:
+
+```
+Assertion failed: (!m_elem_type.GetTypeName().GetStringRef().starts_with("Swift.Optional")), function Update, file SwiftUnsafeTypes.cpp, line 373.
+```
+
+Basically, this appends every time we put a breakpoint in a function directly called by JNI.
+
+It happens also when printing a variable of type `UnsafeMutablePointer<JNIEnv?>` with the `print` command in `lldb`.
+
+### Printing strings in `lldb` does not work
+
+When paused in a function, printing local variables of type String results in errors:
+
+```lldb
+(lldb) print i
+(Int) 19
+(lldb) print hello
+(String) <cannot decode string: unexpected discriminator>
+(lldb) print version
+(String) <cannot decode string: memory read failed for 0xffffff8000000000>
+```
+
