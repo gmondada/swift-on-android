@@ -273,8 +273,8 @@ Analysis:
 * `lldb` gets notified when the shared object is loaded (`DynamicLoaderPOSIXDYLD::RefreshModules()` gets called and sees the new module).
 * It then asks lldb-server for the `ModuleSpec` through the GDB port, command `qModuleInfo`. It provides the module path, which points to the shared object inside the APK: `/data/app/~~JD12dD8imR6vc8siCWvUtQ==/org.example.helloswift-XNHfP5zPCR2PCBxNvXJErg==/base.apk!/lib/arm64-v8a/libhelloswift.so`.
 * `lldb-server` replies with an error, and `lldb` ignores this module.
-* When changing some Swift code and rebuilding the APK, the shared library appears as the last element in the APK. This can be seen with shell command `unzip -lv ./hello-swift-raw-jni/build/outputs/apk/debug/hello-swift-raw-jni-debug.apk`. In that case, I always hit the problem. By changing the manifast file or anything else that makes the shared object moving to the second to last or any other position, the problem disappears.
-* The problam is visible with lldb-server from NDK 29.0.14206865 and from Android Studio.
+* When changing some Swift code and rebuilding the APK, the shared library appears as the last element in the APK. This can be seen with shell command `unzip -lv ./hello-swift-raw-jni/build/outputs/apk/debug/hello-swift-raw-jni-debug.apk`. In that case, I always hit the problem. By changing the manifast file or anything else that makes the shared object moving to the second to last or any other position in the APK, the problem disappears.
+* I tested with lldb-server from NDK 29.0.14206865 and from Android Studio. Both show the problem.
 
 Workaround:
 
