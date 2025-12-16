@@ -241,12 +241,12 @@ This seems to come from `lldb-server` which, on connection, reports having a pro
 When running  `process attach...`,  `lldb` often crashes. This happens when pulling modules from the target via ADB. This problem has already been fixed in the llvm.org project, and the related commits are in the Swift project, on branch `next`. To apply them, go in `llvm-project` and cherry-pick the following commits:
 
 ```console
-git cherry-pick bcb48aa5b2cfc75967c734a97201e0c91273169d
-git cherry-pick 91418ecbdef0e259f83e6ddac5ddfc22a8b6eced
-git cherry-pick 223cfa8018595ff2a809b4e10701bfea884af709
-git cherry-pick a19c9a8ba1b01f324f893481d825a375a5a68bc6
-git cherry-pick 55b0d143d654d9f6c0bc515eaf5a66980a151a4d
-git cherry-pick f8cb6cd989c8159ede0b454a433dd2b5632c1cb6
+git cherry-pick -x bcb48aa5b2cfc75967c734a97201e0c91273169d
+git cherry-pick -x 91418ecbdef0e259f83e6ddac5ddfc22a8b6eced
+git cherry-pick -x 223cfa8018595ff2a809b4e10701bfea884af709
+git cherry-pick -x a19c9a8ba1b01f324f893481d825a375a5a68bc6
+git cherry-pick -x 55b0d143d654d9f6c0bc515eaf5a66980a151a4d
+git cherry-pick -x f8cb6cd989c8159ede0b454a433dd2b5632c1cb6
 ```
 
 ### Attach by name
@@ -260,8 +260,8 @@ NOTE: On Android, attaching by name is equivalent to attaching by app ID, since 
 The swift toolchain `lldb` hangs on `process attach...`, when loading modules. A fix is already available in brach `next`. Just cherry-pick it:
 
 ```console
-git cherry-pick 7fb620a5cc02a511a019d6918b0993b4cbdea825
-git cherry-pick 66d5f6a60550a123638bbdf91ec8cff76cb29c5a
+git cherry-pick -x 7fb620a5cc02a511a019d6918b0993b4cbdea825
+git cherry-pick -x 66d5f6a60550a123638bbdf91ec8cff76cb29c5a
 ```
 
 ### Swift library not visible from lldb
