@@ -342,3 +342,9 @@ Process 31012 stopped
 * thread #22: tid = 31065, 0x0000007560cf3aa4 libhelloswift.so`generateSomeText(wordCount=17) at helloswift.swift:36:23, name = 'FreshNewStack', stop reason = breakpoint 1.1
 ```
 
+### JVM code in the backtrace
+
+As soon as we debug code called from Java, we face strange behaviours and crashes.
+
+TODO: be more specific...
+
