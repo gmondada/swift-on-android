@@ -312,3 +312,33 @@ When paused in a function, printing local variables of type String results in er
 (String) <cannot decode string: memory read failed for 0xffffff8000000000>
 ```
 
+### Stop on __jit_debug_register_code
+
+Normally, when we hit a breakpoint, the execution stops and VS Code highlights the corresponding line of code. Sometimes, however, it's like we hit two breakpoints at the same time, and the second breakpoint is on `__jit_debug_register_code`. A that moment, VS Code highlights the code (in this case the desassembled code) of `__jit_debug_register_code`.
+
+I'm not sure if hitting two breakpoints at the same time is something possible by design or just a incorrectly reported state. But the breakpoint on `__jit_debug_register_code` is an internal trick to get notified when the JIT compiler has generated new code dynamically (see https://llvm.org/docs/DebuggingJITedCode.html). `lldb-dap` should not make this visible to VS Code, at least not as a user breakpoint.
+
+```console
+(lldb) thread list
+Process 31012 stopped
+  thread #1: tid = 31012, 0x00000078ad768c1c libc.so`syscall + 28, name = 'mple.helloswift'
+  thread #2: tid = 31014, 0x00000078ad7a7548 libc.so`__rt_sigtimedwait + 8, name = 'Signal Catcher'
+  thread #3: tid = 31015, 0x00000078ad7a5b04 libc.so`read + 4, name = 'perfetto_hprof_'
+  thread #4: tid = 31016, 0x00000078ad7a83c4 libc.so`__ppoll + 4, name = 'ADB-JDWP Connec'
+  thread #5: tid = 31017, 0x00000076071d5774 libart.so`__jit_debug_register_code, name = 'Jit thread pool', stop reason = jit-debug-register
+  thread #6: tid = 31018, 0x00000078ad768c1c libc.so`syscall + 28, name = 'HeapTaskDaemon'
+  thread #7: tid = 31019, 0x00000078ad768c1c libc.so`syscall + 28, name = 'ReferenceQueueD'
+  thread #8: tid = 31020, 0x00000078ad768c1c libc.so`syscall + 28, name = 'FinalizerDaemon'
+  thread #9: tid = 31021, 0x00000078ad768c1c libc.so`syscall + 28, name = 'FinalizerWatchd'
+  thread #10: tid = 31022, 0x00000078ad7a6148 libc.so`__ioctl + 8, name = 'binder:31012_1'
+  thread #11: tid = 31023, 0x00000078ad7a6148 libc.so`__ioctl + 8, name = 'binder:31012_2'
+  thread #12: tid = 31027, 0x00000078ad7a6148 libc.so`__ioctl + 8, name = 'binder:31012_3'
+  thread #13: tid = 31039, 0x00000078ad768c1c libc.so`syscall + 28, name = 'Profile Saver'
+  thread #15: tid = 31057, 0x00000078ad768c1c libc.so`syscall + 28, name = 'JDWP Event Help'
+  thread #17: tid = 31059, 0x00000078ad7a7944 libc.so`__recvmsg + 4, name = 'JDWP Transport '
+  thread #18: tid = 31060, 0x00000078ad7a6148 libc.so`__ioctl + 8, name = 'binder:31012_4'
+  thread #19: tid = 31061, 0x00000078ad7a6148 libc.so`__ioctl + 8, name = 'binder:31012_5'
+  thread #20: tid = 31062, 0x00000078ad7a8188 libc.so`__epoll_pwait + 8, name = 'RenderThread'
+* thread #22: tid = 31065, 0x0000007560cf3aa4 libhelloswift.so`generateSomeText(wordCount=17) at helloswift.swift:36:23, name = 'FreshNewStack', stop reason = breakpoint 1.1
+```
+
