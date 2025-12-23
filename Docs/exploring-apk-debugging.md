@@ -83,7 +83,12 @@ To stop `lldb-server`, press **CTRL-C**. To kill the app, use:
 $ adb shell am force-stop org.example.helloswift
 ```
 
-NOTE: The `apk-lldb-server` script creates the `~/.lldb/android/last-start-commands` file containing the commands that `lldb` needs to connect to `lldb-server` and attach to the app process. It also stores the app ID and PID in `~/.lldb/android/last-env`.
+NOTES:
+
+* The `apk-lldb-server` script creates the `~/.lldb/android/last-start-commands` file containing the commands that `lldb` needs to connect to `lldb-server` and attach to the app process. It also stores the app ID and PID in `~/.lldb/android/last-env`.
+* The script runs `lldb-server` in the app sandbox, to mimic what Android Studio does.
+* The scirpt also cleans up what left behind by previous debug sessions. In a context where lldb crashes all the time, it's important.
+* The script outputs the `lldb-server` log on screen.
 
 ## Start the debugging session
 
