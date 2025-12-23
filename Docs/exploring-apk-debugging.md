@@ -73,8 +73,8 @@ NOTE:
 
 We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-lldb-server). The script requires the app ID as an argument:
 
-```console
-$ ./apk-lldb-server org.example.helloswift -D
+```shell
+./apk-lldb-server org.example.helloswift -D
 ```
 
 The `-D` option makes the app display the "Waiting for Debugger" popup. In this mode, the app does not fully start, giving the debugger a chance to connect and set all breakpoints before the app runs.
@@ -83,79 +83,42 @@ The script will block the terminal. Let it run, and open a new terminal for furt
 
 To stop `lldb-server`, press **CTRL-C**. To kill the app, use:
 
-```console
-$ adb shell am force-stop org.example.helloswift
+```shell
+adb shell am force-stop org.example.helloswift
 ```
 
 NOTES:
 
 * The `apk-lldb-server` script creates the `~/.lldb/android/last-start-commands` file containing the commands that `lldb` needs to connect to `lldb-server` and attach to the app process. It also stores the app ID and PID in `~/.lldb/android/last-env`.
 * The script runs `lldb-server` in the app sandbox, to mimic what Android Studio does.
-* The scirpt also cleans up what left behind by previous debug sessions. In a context where lldb crashes all the time, it's important.
+* The script also cleans up what left behind by previous debug sessions. In a context where lldb crashes frequently, it's important.
 * The script outputs the `lldb-server` log on screen.
 
 ## Start the debugging session
 
-There are a few options:
+We have two options:
 
-1. Use the LLDB from the Android NDK. This allows listing symbols, disassembly code, etc but not provide Swift-specific information. This is sometimes useful to determine whether an issue comes from the LLVM LLDB or the Swift LLDB.
-2. Use the LLDB from the Swift toolchain. It has full Swift support.
-3. Start a debugging session in VS Code, based on lldb-dap.
+1. Use LLDB from the command line
+2. Start a debugging session in VS Code, based on lldb-dap
 
-### Use the LLDB from the Android NDK
+### Use LLDB from the command line
 
-We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-ndk-lldb). We pass the app ID as an argument, but this is optional. When omitted, the script just uses the data stored by  `apk-lldb-server` in the `~/.lldb/android` folder.
+To start `lldb` just open a terminal and run:
+
+```shell
+swiftly run lldb -o "command source -s 0 -e 0 '~/.lldb/android/last-start-commands'"
+```
+
+You should see something like this:
 
 ```console
-$ ./apk-ndk-lldb org.example.helloswift
+$ swiftly run lldb -o "command source -s 0 -e 0 '~/.lldb/android/last-start-commands'"
+(lldb) command source -s 0 -e 0 '~/.lldb/android/last-start-commands'
+Executing commands in '/Users/gabriele/.lldb/android/last-start-commands'.
 (lldb) platform select remote-android
   Platform: remote-android
  Connected: no
-(lldb) platform connect unix-abstract-connect:///org.example.helloswift-0/lldb-platform.sock
-  Platform: remote-android
-    Triple: aarch64-unknown-linux-android
-OS Version: 31 (5.10.110-android12-9-00004-gb92ac325368e-ab8731800)
-  Hostname: localhost
- Connected: yes
-WorkingDir: /data/user/0/org.example.helloswift
-    Kernel: #1 SMP PREEMPT Tue Jun 14 13:40:53 UTC 2022
-error: Invalid URL: connect://[127.0.0.1]gdbserver.35df1d
-(lldb) process attach --pid 8242
-...
-```
-
-NOTE: The `Invalid URL` error looks like a bug, but it's not critical. See below.
-
-You can now set a breakpoint and continue execution:
-
-```console
-(lldb) b Java_org_example_helloswift_MainActivity_stringFromSwift
-Breakpoint 1: where = libhelloswift.so`Java_org_example_helloswift_MainActivity_stringFromSwift, address = 0x00000077d6cdf368
-(lldb) cont
-Process 8847 resuming
-```
-
-If you choose the `-D` option above, you need to dismiss the "Waiting For Debugger" popup. There is a dedicated section about this later in the document.
-
-### Use the LLDB from the Swift toolchain
-
-We use a shell script for this, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-swift-lldb). We pass the app ID as an argument, but this is optional. When omitted, the script just uses the data stored by `apk-lldb-server` in the `~/.lldb/android` folder.
-
-```console
-$ scripts/apk-swift-lldb org.example.helloswift
-App ID: org.example.helloswift
-Process ID: 8847
-Swift Toolchain: /Users/gabriele/Library/Developer/Toolchains/swift-DEVELOPMENT-SNAPSHOT-2025-10-16-a.xctoolchain
-(lldb) command source -s 0 '~/.lldb/android/last-start-commands'
-Executing commands in '~/.lldb/android/last-start-commands'.
-(lldb) command alias a1 process attach --pid 8847
-(lldb) command alias a2 process handle SIGSEGV -n false -p true -s false
-(lldb) command alias a3 process handle SIGBUS -n false -p true -s false
-(lldb) command alias a4 process handle SIGCHLD -n false -p true -s false
-(lldb) platform select remote-android
-  Platform: remote-android
- Connected: no
-(lldb) platform connect unix-abstract-connect:///org.example.helloswift-0/lldb-platform.sock
+(lldb) platform connect unix-abstract-connect:///org.example.helloswift/lldb-platform.sock
   Platform: remote-android
     Triple: aarch64-unknown-linux-android
 OS Version: 31 (5.10.110-android12-9-00004-gb92ac325368e-ab8731800)
@@ -164,21 +127,33 @@ OS Version: 31 (5.10.110-android12-9-00004-gb92ac325368e-ab8731800)
 WorkingDir: /data/user/0/org.example.helloswift
     Kernel: #1 SMP PREEMPT Tue Jun 14 13:40:53 UTC 2022
 error: Invalid URL: connect://[127.0.0.1]gdbserver.3312f5
-(lldb) a1
+(lldb) process attach --name org.example.helloswift
 ...
 ```
 
-NOTE: The `Invalid URL` error looks like a bug, but it's not critical. See below.
+You can now set a breakpoint and continue execution:
 
-Here we often have a problem: the `a1` command (equivalent to `process attach --pid xxx`) crashes or hangs `lldb`. Some of these bugs have been corrected in the llvm project (see below).
-
-TODO: explain workaround
-
-TODO: some more lldb commands
-
-TODO: explain why we use a1, a2, ... aliases.
+```console
+(lldb) breakpoint set -f helloswift.swift -l 17
+Breakpoint 1: no locations (pending).
+(lldb) cont
+Process 8847 resuming
+```
 
 If you choose the `-D` option above, you need to dismiss the "Waiting For Debugger" popup. There is a dedicated section about this later in the document.
+
+When the breakpoint is hit, the execution stops.
+
+```console
+Process 8847 stopped
+* thread #1, name = 'mple.helloswift', stop reason = breakpoint 1.1
+```
+
+NOTES:
+
+* With the version of LLDB currently shipped with the Swift toolchain, you will probably never reach this point. In practice, many bugs cause LLDB to hang or crash. These issues are listed in the “Issues” section below. To fix or work around them, you need to build LLDB from source.
+* `lldb` stores data in the `~/.lldb/module_cache` directory. If you want to investigate the issues mentioned above, it is often useful to clear this cache and start `lldb` without any dependencies on previous runs.
+* I personally use my own script to start LLDB, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-swift-lldb). The script is trivial: it clears the cache and starts LLDB.
 
 ### Start a debugging session in VS Code
 
@@ -232,6 +207,18 @@ $ scripts/dismiss-wfd org.example.helloswift
 Another, more hacky, way to dismiss this popup is to search for `VMDebug_isDebuggerConnected()`, which is the C++ implementation of `Debug.isDebuggerConnected()`. By stopping just before the `ret` instruction and setting the `w0` register to `1`, we force the function to return true.
 
 TODO: explore the feasibility of loading an agent which, like the JDWP agent, overrides `Debug.isDebuggerConnected()`.
+
+### Use alternative versions of LLDB
+
+The Android NDK comes with LLDB. [Here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/apk-ndk-lldb) is the script I use to start it.
+
+This version has no Swift support, but allows you to list modules and symbols, disassembly code, etc. I sometimes use it to determine whether an issue comes from the LLVM LLDB or the Swift LLDB. Unfortunately, it has similar bugs as the Swift's one. In fact, the bugs mentioned above are often not due to Swift, but to Android, JVM and shared object support in lldb.
+
+Xcode also comes with it own `lldb`. You can start it with the command:
+
+```shell
+xcrun lldb -o "command source -s 0 -e 0 '~/.lldb/android/last-start-commands'"
+```
 
 ## Issues
 
