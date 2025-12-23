@@ -13,7 +13,6 @@ We will go through these steps:
 * Start the APK on the target
 * Start lldb-server on the target
 * Start the lldb debugging session
-* Eventually, start the Java debugging session
 
 ## Background
 
@@ -51,16 +50,16 @@ We also need an app to debug. In this example, we use the `hello-swift-raw-jni` 
 
 Open a terminal in the `swift-android-examples` root folder and run:
 
-```console
-$ ./gradlew :hello-swift-raw-jni:assembleDebug
+```shell
+./gradlew :hello-swift-raw-jni:assembleDebug
 ```
 
 This step can actually be skipped, as the command in the next section will build the APK anyway.
 
 ## Install the APK
 
-```console
-$ ./gradlew :hello-swift-raw-jni:installDebug
+```shell
+./gradlew :hello-swift-raw-jni:installDebug
 ```
 
 NOTE:
@@ -169,7 +168,7 @@ Create or edit `.vscode/settings.json` and add:
 
 Replace `xxx` with the path to your toolchain. If you’re unsure where it is, run the following command:
 
-```bash
+```shell
 swiftly use --print-location
 ```
 
@@ -200,8 +199,8 @@ If you use the `-D` option when running `apk-lldb-server`, the app starts by dis
 
 In this early startup phase, the app is also listening for JDWP connections on a Unix‑domain socket. This is the socket used by the Java debugger to control the JVM. To dismiss the popup and continue execution, somebody needs to connect to this socket. We do this with a shell script, available [here](https://github.com/gmondada/swift-on-android/blob/main/Scripts/dismiss-wfd), which uses `jdb` (from the Java SDK) behind the scenes.
 
-```console
-$ scripts/dismiss-wfd org.example.helloswift
+```shell
+./dismiss-wfd org.example.helloswift
 ```
 
 Another, more hacky, way to dismiss this popup is to search for `VMDebug_isDebuggerConnected()`, which is the C++ implementation of `Debug.isDebuggerConnected()`. By stopping just before the `ret` instruction and setting the `w0` register to `1`, we force the function to return true.
