@@ -63,7 +63,11 @@ This step can actually be skipped, as the command in the next section will build
 $ ./gradlew :hello-swift-raw-jni:installDebug
 ```
 
-NOTE: Should we add `-Pandroid.injected.testOnly=true` as done by Android Studio?
+NOTE:
+
+* This command also builds the APK if it has not already been built.
+* Android Studio uses the `-Pandroid.injected.testOnly=true` option to ensure the APK never gets distributed. We omit it for simplicity.
+* Depending on how the APK is built, a bug in lldb-server prevents some libraries from being debugged. See the "Issues" section below.
 
 ## Start the APK and lldb-server on the target
 
