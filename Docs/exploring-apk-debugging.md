@@ -231,7 +231,7 @@ error: Invalid URL: connect://[127.0.0.1]gdbserver.3312f5
 
 This seems to come from `lldb-server` which, on connection, reports having a process ready for debugging on that GDB socket (on qQueryGDBServer), which is not true. We use the `lldb-server` provided by the NDK. Moving to a more recent NDK does not change the behavior. Same with `lldb-server` embedded in Android Studio.
 
-### Crash when loading modules from the target
+### Crash when loading modules from the target (solved)
 
 When running  `process attach...`,  `lldb` often crashes. This happens when pulling modules from the target via ADB. This problem has already been fixed in the llvm.org project, and the related commits are in the Swift project, on branch `next`. To apply them, go in `llvm-project` and cherry-pick the following commits:
 
@@ -244,13 +244,13 @@ git cherry-pick -x 55b0d143d654d9f6c0bc515eaf5a66980a151a4d
 git cherry-pick -x f8cb6cd989c8159ede0b454a433dd2b5632c1cb6
 ```
 
-### Attach by name
+### Attach by name (solved)
 
 Attaching a process by name does no work, at least not with the `lldb` provides in the NDK or in the swift toolchain. A fix exists in the llvm.org project. It's part of the commits listed above.
 
 NOTE: On Android, attaching by name is equivalent to attaching by app ID, since processes spawned by Zygote use the app ID as their process name.
 
-### Deadlock when loading modules
+### Deadlock when loading modules (solved)
 
 The swift toolchain `lldb` hangs on `process attach...`, when loading modules. A fix is already available in brach `next`. Just cherry-pick it:
 
@@ -294,7 +294,7 @@ Basically, this appends every time we put a breakpoint in a function directly ca
 
 It happens also when printing a variable of type `UnsafeMutablePointer<JNIEnv?>` with the `print` command in `lldb`.
 
-### Printing strings in `lldb` does not work
+### Printing strings in `lldb` does not work (solved)
 
 When paused in a function, printing local variables of type String results in errors:
 
@@ -306,6 +306,14 @@ When paused in a function, printing local variables of type String results in er
 (lldb) print version
 (String) <cannot decode string: memory read failed for 0xffffff8000000000>
 ```
+
+On AArch64, a `String` is a 16-byte structure containing the string length, some flags, and a pointer to the string data. Swift uses pointer tagging to store certain flags in the high bits of this pointer.
+
+Android also uses pointer tagging and reserves the 8 most significant bits of pointers. As a result, on Android, Swift cannot store its flags in the same location as on other platforms. Unfortunately, LLDB is unaware of this Android-specific behavior and therefore looks for the flags in the wrong place.
+
+### Printing arrays in lldb does not always work (solved)
+
+As for strings, arrays in Swift make use of tagged pointers. Android has specific constraints on pointer tagging and lldb is unaware of this.
 
 ### Stop on __jit_debug_register_code
 
