@@ -294,6 +294,32 @@ Basically, this appends every time we put a breakpoint in a function directly ca
 
 It happens also when printing a variable of type `UnsafeMutablePointer<JNIEnv?>` with the `print` command in `lldb`.
 
+This is no specific to Android, it happens on macOS as well. To reproduce the problem, create a `test` program:
+
+```swift
+struct JNINativeInterface {}
+typealias JNIEnv = UnsafePointer<JNINativeInterface>
+
+func MainActivity_stringFromSwift(env: UnsafeMutablePointer<JNIEnv?>) {
+    print("JNIEnv pointer: \(env)")  // <= put a breakpoint here (line 5)
+}
+
+@main
+struct comparative_example {
+    static func main() {
+        var env: JNIEnv? = nil
+        MainActivity_stringFromSwift(env: &env)
+    }
+}
+
+```
+
+Compile with 6.3-snapshot-2025-12-18 or main-snapshot-2025-12-19 on Mac, then run
+
+```shell
+swiftly run lldb test -o "breakpoint set -f test.swift -l 5" -o run
+```
+
 ### Printing strings in `lldb` does not work (solved)
 
 When paused in a function, printing local variables of type String results in errors:
