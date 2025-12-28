@@ -221,6 +221,8 @@ xcrun lldb -o "command source -s 0 -e 0 '~/.lldb/android/last-start-commands'"
 
 ## Issues
 
+Work to fix the issues listed below is ongoing. Many fixes can be found at: https://github.com/gmondada/llvm-project/tree/gab/swift-lldb-patches.
+
 ### Invalid URL
 
 When running the `platform connect...` command in `lldb`, we get this error:
@@ -341,7 +343,7 @@ Android also uses pointer tagging and reserves the 8 most significant bits of po
 
 As for strings, arrays in Swift make use of tagged pointers. Android has specific constraints on pointer tagging and lldb is unaware of this.
 
-### Stop on __jit_debug_register_code
+### Stop on __jit_debug_register_code (solved)
 
 Normally, when we hit a breakpoint, the execution stops and VS Code highlights the corresponding line of code. Sometimes, however, it's like we hit two breakpoints at the same time, and the second breakpoint is on `__jit_debug_register_code`. A that moment, VS Code highlights the code (in this case the desassembled code) of `__jit_debug_register_code`.
 
