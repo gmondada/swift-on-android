@@ -221,7 +221,19 @@ xcrun lldb -o "command source -s 0 -e 0 '~/.lldb/android/last-start-commands'"
 
 ## Issues
 
-Work to fix the issues listed below is ongoing. Many fixes can be found at: https://github.com/gmondada/llvm-project/tree/gab/swift-lldb-patches.
+Work to fix the issues listed below is ongoing. Some patches have been submitted to the llvm.org and swift.org projects:
+
+* https://github.com/llvm/llvm-project/pull/173848
+
+* https://github.com/llvm/llvm-project/pull/173852
+
+* https://github.com/swiftlang/llvm-project/pull/12050
+
+* https://github.com/swiftlang/llvm-project/pull/12049
+
+* https://github.com/swiftlang/llvm-project/pull/12042
+
+These patches are also grouped on my branch: https://github.com/gmondada/llvm-project/tree/gab/swift-lldb-patches.
 
 ### Invalid URL
 
