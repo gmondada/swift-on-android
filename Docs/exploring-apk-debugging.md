@@ -224,14 +224,11 @@ xcrun lldb -o "command source -s 0 -e 0 '~/.lldb/android/last-start-commands'"
 Work to fix the issues listed below is ongoing. Some patches have been submitted to the llvm.org and swift.org projects:
 
 * https://github.com/llvm/llvm-project/pull/173848
-
 * https://github.com/llvm/llvm-project/pull/173852
-
 * https://github.com/swiftlang/llvm-project/pull/12050
-
 * https://github.com/swiftlang/llvm-project/pull/12049
-
 * https://github.com/swiftlang/llvm-project/pull/12042
+* https://github.com/llvm/llvm-project/pull/173966
 
 These patches are also grouped on my branch: https://github.com/gmondada/llvm-project/tree/gab/swift-lldb-patches.
 
@@ -250,19 +247,21 @@ This seems to come from `lldb-server` which, on connection, reports having a pro
 When running  `process attach...`,  `lldb` often crashes. This happens when pulling modules from the target via ADB. This problem has already been fixed in the llvm.org project, and the related commits are in the Swift project, on branch `next`. To apply them, go in `llvm-project` and cherry-pick the following commits:
 
 ```console
-git cherry-pick -x bcb48aa5b2cfc75967c734a97201e0c91273169d
-git cherry-pick -x 91418ecbdef0e259f83e6ddac5ddfc22a8b6eced
 git cherry-pick -x 223cfa8018595ff2a809b4e10701bfea884af709
 git cherry-pick -x a19c9a8ba1b01f324f893481d825a375a5a68bc6
 git cherry-pick -x 55b0d143d654d9f6c0bc515eaf5a66980a151a4d
 git cherry-pick -x f8cb6cd989c8159ede0b454a433dd2b5632c1cb6
 ```
 
+Pull request: https://github.com/swiftlang/llvm-project/pull/12042
+
 ### Attach by name (solved)
 
 Attaching a process by name does no work, at least not with the `lldb` provides in the NDK or in the swift toolchain. A fix exists in the llvm.org project. It's part of the commits listed above.
 
 NOTE: On Android, attaching by name is equivalent to attaching by app ID, since processes spawned by Zygote use the app ID as their process name.
+
+Pull request: https://github.com/swiftlang/llvm-project/pull/12042
 
 ### Deadlock when loading modules (solved)
 
@@ -273,21 +272,30 @@ git cherry-pick -x 7fb620a5cc02a511a019d6918b0993b4cbdea825
 git cherry-pick -x 66d5f6a60550a123638bbdf91ec8cff76cb29c5a
 ```
 
-### Swift library not visible from lldb
+Pull request: https://github.com/swiftlang/llvm-project/pull/12049
+
+### Swift library not visible from lldb (solved)
 
 After having changed some Swift code and rebuilt the APK, `lldb` stops making the Swift code debuggable. Breakpoints cannot be set, and the command `image list -b libhelloswift.so` acts as if the image does not exist. However, we know the shared library has been loaded because the Swift code is running.
 
+This problem appears when the shared library (SO file) is the last entry in the APK. This can be verified with command:
+
+```shell
+unzip -lv ./hello-swift-raw-jni/build/outputs/apk/debug/hello-swift-raw-jni-debug.apk
+```
+
 Analysis:
 
-* `lldb` gets notified when the shared object is loaded (`DynamicLoaderPOSIXDYLD::RefreshModules()` gets called and sees the new module).
+* When changing some Swift code and rebuilding the APK, the shared library appears as the last element in the APK.
+* When debugging, `lldb` gets notified when the shared object is loaded (`DynamicLoaderPOSIXDYLD::RefreshModules()` gets called and sees the new module).
 * It then asks lldb-server for the `ModuleSpec` through the GDB port, command `qModuleInfo`. It provides the module path, which points to the shared object inside the APK: `/data/app/~~JD12dD8imR6vc8siCWvUtQ==/org.example.helloswift-XNHfP5zPCR2PCBxNvXJErg==/base.apk!/lib/arm64-v8a/libhelloswift.so`.
-* `lldb-server` replies with an error, and `lldb` ignores this module.
-* When changing some Swift code and rebuilding the APK, the shared library appears as the last element in the APK. This can be seen with shell command `unzip -lv ./hello-swift-raw-jni/build/outputs/apk/debug/hello-swift-raw-jni-debug.apk`. In that case, I always hit the problem. By changing the manifast file or anything else that makes the shared object moving to the second to last or any other position in the APK, the problem disappears.
+* `lldb-server` opens the APK (ZIP) file and searches for the library. A bug in the lookup routine makes the last entry in the ZIP archive ignored.
+* ``lldb-server` replies with an error, and `lldb` ignores this module.
 * I tested with lldb-server from NDK 29.0.14206865 and from Android Studio. Both show the problem.
 
 Workaround:
 
-Rebuild the APK entirerly, or make any change other than the shared object just before installing. Example:
+One technique is to build the APK, then build it again by changing the manifest. In this way the last entry in the APK is the manifest, not the SO file. Example:
 
 ```console 
 ./gradlew :hello-swift-raw-jni:assembleDebug
@@ -295,6 +303,13 @@ Rebuild the APK entirerly, or make any change other than the shared object just 
 ```
 
 The `-Pandroid.injected.testOnly=true` option causes a change in the manifest, which ends up in being the last file in the APK.
+
+Notes:
+
+* If the last entry in the APK includes extra fields or a comment, the issue no longer occurs. This could be used as a workaround.
+* It would be great to provide the APK directly to LLDB, avoiding the need to pull its contents from the target, and reducing debug session startup time.
+
+Pull request: https://github.com/llvm/llvm-project/pull/173966
 
 ### Assertion on UnsafeMutablePointer<JNIEnv?> 
 
@@ -351,13 +366,19 @@ On AArch64, a `String` is a 16-byte structure containing the string length, some
 
 Android also uses pointer tagging and reserves the 8 most significant bits of pointers. As a result, on Android, Swift cannot store its flags in the same location as on other platforms. Unfortunately, LLDB is unaware of this Android-specific behavior and therefore looks for the flags in the wrong place.
 
+Pull request: https://github.com/swiftlang/llvm-project/pull/12050
+
 ### Printing arrays in lldb does not always work (solved)
 
 As for strings, arrays in Swift make use of tagged pointers. Android has specific constraints on pointer tagging and lldb is unaware of this.
 
+Pull request: https://github.com/swiftlang/llvm-project/pull/12050
+
 ### Stop on __jit_debug_register_code (solved)
 
 Normally, when we hit a breakpoint, the execution stops and VS Code highlights the corresponding line of code. Sometimes, however, it's like we hit two breakpoints at the same time, and the second breakpoint is on `__jit_debug_register_code`. A that moment, VS Code highlights the code (in this case the desassembled code) of `__jit_debug_register_code`.
+
+Analysis:
 
 I'm not sure if hitting two breakpoints at the same time is something possible by design or just a incorrectly reported state. But the breakpoint on `__jit_debug_register_code` is an internal trick to get notified when the JIT compiler has generated new code dynamically (see https://llvm.org/docs/DebuggingJITedCode.html). `lldb-dap` should not make this visible to VS Code, at least not as a user breakpoint.
 
@@ -384,6 +405,12 @@ Process 31012 stopped
   thread #20: tid = 31062, 0x00000078ad7a8188 libc.so`__epoll_pwait + 8, name = 'RenderThread'
 * thread #22: tid = 31065, 0x0000007560cf3aa4 libhelloswift.so`generateSomeText(wordCount=17) at helloswift.swift:36:23, name = 'FreshNewStack', stop reason = breakpoint 1.1
 ```
+
+Workaround:
+
+When this happens, go in the list of threads on the left and select the thread which hit your breakpoint.
+
+Pull request: https://github.com/llvm/llvm-project/pull/173848
 
 ### JVM code in the backtrace
 
