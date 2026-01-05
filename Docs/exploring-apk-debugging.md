@@ -257,6 +257,7 @@ git cherry-pick -x 223cfa8018595ff2a809b4e10701bfea884af709
 git cherry-pick -x a19c9a8ba1b01f324f893481d825a375a5a68bc6
 git cherry-pick -x 55b0d143d654d9f6c0bc515eaf5a66980a151a4d
 git cherry-pick -x f8cb6cd989c8159ede0b454a433dd2b5632c1cb6
+git cherry-pick -x a85d3a53d306d6624f20b528cf783de778392347
 ```
 
 Pull request: https://github.com/swiftlang/llvm-project/pull/12042
