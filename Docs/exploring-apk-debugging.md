@@ -356,6 +356,8 @@ Compile with 6.3-snapshot-2025-12-18 or main-snapshot-2025-12-19 on Mac, then ru
 swiftly run lldb test -o "breakpoint set -f test.swift -l 5" -o run
 ```
 
+Issue: https://github.com/swiftlang/llvm-project/issues/12053
+
 ### Printing strings in `lldb` does not work (solved)
 
 When paused in a function, printing local variables of type String results in errors:
@@ -381,7 +383,7 @@ As for strings, arrays in Swift make use of tagged pointers. Android has specifi
 
 Pull request: https://github.com/swiftlang/llvm-project/pull/12050
 
-### Stop on __jit_debug_register_code (solved)
+### Stop on __jit_debug_register_code (solved, merged)
 
 Normally, when we hit a breakpoint, the execution stops and VS Code highlights the corresponding line of code. Sometimes, however, it's like we hit two breakpoints at the same time, and the second breakpoint is on `__jit_debug_register_code`. A that moment, VS Code highlights the code (in this case the desassembled code) of `__jit_debug_register_code`.
 
