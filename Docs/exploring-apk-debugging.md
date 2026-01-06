@@ -258,6 +258,7 @@ git cherry-pick -x a19c9a8ba1b01f324f893481d825a375a5a68bc6
 git cherry-pick -x 55b0d143d654d9f6c0bc515eaf5a66980a151a4d
 git cherry-pick -x f8cb6cd989c8159ede0b454a433dd2b5632c1cb6
 git cherry-pick -x a85d3a53d306d6624f20b528cf783de778392347
+git cherry-pick -x ec18557dee5c4a7122a7a6dea651283a5af051f3
 ```
 
 Pull request: https://github.com/swiftlang/llvm-project/pull/12042
@@ -297,7 +298,7 @@ Analysis:
 * When debugging, `lldb` gets notified when the shared object is loaded (`DynamicLoaderPOSIXDYLD::RefreshModules()` gets called and sees the new module).
 * It then asks lldb-server for the `ModuleSpec` through the GDB port, command `qModuleInfo`. It provides the module path, which points to the shared object inside the APK: `/data/app/~~JD12dD8imR6vc8siCWvUtQ==/org.example.helloswift-XNHfP5zPCR2PCBxNvXJErg==/base.apk!/lib/arm64-v8a/libhelloswift.so`.
 * `lldb-server` opens the APK (ZIP) file and searches for the library. A bug in the lookup routine makes the last entry in the ZIP archive ignored.
-* ``lldb-server` replies with an error, and `lldb` ignores this module.
+* `lldb-server` replies with an error, and `lldb` ignores this module.
 * I tested with lldb-server from NDK 29.0.14206865 and from Android Studio. Both show the problem.
 
 Workaround:
