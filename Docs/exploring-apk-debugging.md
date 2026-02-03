@@ -399,7 +399,7 @@ Process 31012 stopped
   thread #2: tid = 31014, 0x00000078ad7a7548 libc.so`__rt_sigtimedwait + 8, name = 'Signal Catcher'
   thread #3: tid = 31015, 0x00000078ad7a5b04 libc.so`read + 4, name = 'perfetto_hprof_'
   thread #4: tid = 31016, 0x00000078ad7a83c4 libc.so`__ppoll + 4, name = 'ADB-JDWP Connec'
-  thread #5: tid = 31017, 0x00000076071d5774 libart.so`__jit_debug_register_code, name = 'Jit thread pool', stop reason = jit-debug-register
+* thread #5: tid = 31017, 0x00000076071d5774 libart.so`__jit_debug_register_code, name = 'Jit thread pool', stop reason = jit-debug-register
   thread #6: tid = 31018, 0x00000078ad768c1c libc.so`syscall + 28, name = 'HeapTaskDaemon'
   thread #7: tid = 31019, 0x00000078ad768c1c libc.so`syscall + 28, name = 'ReferenceQueueD'
   thread #8: tid = 31020, 0x00000078ad768c1c libc.so`syscall + 28, name = 'FinalizerDaemon'
@@ -413,7 +413,7 @@ Process 31012 stopped
   thread #18: tid = 31060, 0x00000078ad7a6148 libc.so`__ioctl + 8, name = 'binder:31012_4'
   thread #19: tid = 31061, 0x00000078ad7a6148 libc.so`__ioctl + 8, name = 'binder:31012_5'
   thread #20: tid = 31062, 0x00000078ad7a8188 libc.so`__epoll_pwait + 8, name = 'RenderThread'
-* thread #22: tid = 31065, 0x0000007560cf3aa4 libhelloswift.so`generateSomeText(wordCount=17) at helloswift.swift:36:23, name = 'FreshNewStack', stop reason = breakpoint 1.1
+  thread #22: tid = 31065, 0x0000007560cf3aa4 libhelloswift.so`generateSomeText(wordCount=17) at helloswift.swift:36:23, name = 'FreshNewStack', stop reason = breakpoint 1.1
 ```
 
 Workaround:
