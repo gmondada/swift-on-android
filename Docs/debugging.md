@@ -23,7 +23,7 @@ I'm documenting here some of the ongoing work.
   - PR: https://github.com/llvm/llvm-project/pull/173848
   - Merged in `llvm:main`
   - PR: https://github.com/swiftlang/llvm-project/pull/12263
-  - Approved
+  - Merged in `swiftlang:stable/21.x`
 - Management of Android specific pointer tagging in LLDB
   - PR: https://github.com/swiftlang/llvm-project/pull/12050
   - Merged in `swiftlang:stable/21.x`
@@ -32,7 +32,8 @@ I'm documenting here some of the ongoing work.
   - In review, discussing tests
 - Assertion on UnsafeMutablePointer<JNIEnv?>
   - Issue: https://github.com/swiftlang/llvm-project/issues/12053
-  - The code looks correct, just the assert() condition seems wrong
+  - PR: https://github.com/swiftlang/llvm-project/pull/12295
+  - Merged in `swiftlang:swift/release/6.3`
 - Correctly format LLDB warnings in the debug console (cosmetic issue)
   - PR: https://github.com/llvm/llvm-project/pull/173852
   - In review, discussing tests

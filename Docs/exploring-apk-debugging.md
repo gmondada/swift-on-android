@@ -221,16 +221,7 @@ xcrun lldb -o "command source -s 0 -e 0 '~/.lldb/android/last-start-commands'"
 
 ## Issues
 
-Work to fix the issues listed below is ongoing. Some patches have been submitted to the llvm.org and swift.org projects:
-
-* https://github.com/llvm/llvm-project/pull/173848
-* https://github.com/llvm/llvm-project/pull/173852
-* https://github.com/swiftlang/llvm-project/pull/12050
-* https://github.com/swiftlang/llvm-project/pull/12049
-* https://github.com/swiftlang/llvm-project/pull/12042
-* https://github.com/llvm/llvm-project/pull/173966
-
-These patches are also grouped on my branch: https://github.com/gmondada/llvm-project/tree/gab/swift-lldb-patches.
+Work to fix the issues listed below is ongoing. See state [here](debugging.md). Patches are also available on [this branch](https://github.com/gmondada/llvm-project/tree/gab/swift-lldb-patches).
 
 ### Invalid URL
 
@@ -319,7 +310,7 @@ Notes:
 
 Pull request: https://github.com/llvm/llvm-project/pull/173966
 
-### Assertion on UnsafeMutablePointer<JNIEnv?> 
+### Assertion on UnsafeMutablePointer<JNIEnv?> (solved)
 
 When pausing execution in a context involving a UnsafeMutablePointer<JNIEnv?>, `lldb` aborts on this assertion:
 
@@ -384,7 +375,7 @@ As for strings, arrays in Swift make use of tagged pointers. Android has specifi
 
 Pull request: https://github.com/swiftlang/llvm-project/pull/12050
 
-### Stop on __jit_debug_register_code (solved, merged)
+### Stop on __jit_debug_register_code (solved)
 
 Normally, when we hit a breakpoint, the execution stops and VS Code highlights the corresponding line of code. Sometimes, however, it's like we hit two breakpoints at the same time, and the second breakpoint is on `__jit_debug_register_code`. A that moment, VS Code highlights the code (in this case the desassembled code) of `__jit_debug_register_code`.
 
@@ -421,10 +412,4 @@ Workaround:
 When this happens, go in the list of threads on the left and select the thread which hit your breakpoint.
 
 Pull request: https://github.com/llvm/llvm-project/pull/173848
-
-### JVM code in the backtrace
-
-As soon as we debug code called from Java, we face strange behaviours and crashes.
-
-TODO: be more specific...
 
