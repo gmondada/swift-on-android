@@ -15,25 +15,33 @@ I'm documenting here some of the ongoing work.
   - Solved by cherry-picking from branch `next`
   - PR: https://github.com/swiftlang/llvm-project/pull/12049
   - Merged in `swiftlang:stable/21.x`
+  - PR: https://github.com/swiftlang/llvm-project/pull/12312
+  - Merged in `swiftlang:swift/release/6.3`
 - Crash when loading modules from the target + Attach processes by name
   - Solved by cherry-picking from branch `next`
   - PR: https://github.com/swiftlang/llvm-project/pull/12042
   - Merged in `swiftlang:stable/21.x`
+  - PR: https://github.com/swiftlang/llvm-project/pull/12312
+  - Merged in `swiftlang:swift/release/6.3`
 - Do not expose internal breakpoints to DAP clients
   - PR: https://github.com/llvm/llvm-project/pull/173848
   - Merged in `llvm:main`
   - PR: https://github.com/swiftlang/llvm-project/pull/12263
   - Merged in `swiftlang:stable/21.x`
+  - PR: https://github.com/swiftlang/llvm-project/pull/12322
+  - Merged in `swiftlang:swift/release/6.3`
 - Management of Android specific pointer tagging in LLDB
   - PR: https://github.com/swiftlang/llvm-project/pull/12050
   - Merged in `swiftlang:stable/21.x`
+  - PR: https://github.com/swiftlang/llvm-project/pull/12314
+  - Merged in `swiftlang:swift/release/6.3`
 - lldb-server ignoring last entry in zip files
   - PR: https://github.com/llvm/llvm-project/pull/173966
-  - In review, discussing tests
+  - Merged in `llvm:main`
 - Assertion on UnsafeMutablePointer<JNIEnv?>
   - Issue: https://github.com/swiftlang/llvm-project/issues/12053
   - PR: https://github.com/swiftlang/llvm-project/pull/12295
   - Merged in `swiftlang:swift/release/6.3`
 - Correctly format LLDB warnings in the debug console (cosmetic issue)
   - PR: https://github.com/llvm/llvm-project/pull/173852
-  - In review, discussing tests
+  - Merged in `llvm:main`
