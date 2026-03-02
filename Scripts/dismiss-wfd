@@ -7,7 +7,13 @@ if ! adb --version > /dev/null; then
 	exit
 fi
 
-if ! echo version | jdb  > /dev/null; then
+if [ -f "$JAVA_HOME/bin/jdb" ]; then
+	JDB="$JAVA_HOME/bin/jdb"
+else
+	JDB="jdb"
+fi
+
+if ! echo version | $JDB  > /dev/null; then
 	echo "Error: jdb command is no available."
 	exit
 fi
@@ -27,5 +33,10 @@ echo "API Level: $API_LEVEL"
 
 PORT=$(adb forward tcp:0 jdwp:$APP_PID)
 echo "JDWP Port: $PORT"
-echo "threads" | jdb -attach $PORT
+
+# When ART is in waiting-for-debugger mode, it actually runs in a loop,
+# polling for a debugger agent every 100ms. Therefore, the agent must run
+# for at least 100ms in order for the polling loop to detect it.
+{ echo "version"; sleep 4 } | $JDB -attach $PORT
+
 adb forward --remove tcp:$PORT
