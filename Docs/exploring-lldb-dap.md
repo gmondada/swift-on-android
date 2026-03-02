@@ -5,7 +5,7 @@ This is a simple exploratory work to experiment with Swift debugging on Android,
 ## Background
 
 * Based on [work by Jason Foreman](https://github.com/threeve/swift-android-sdk/wiki/Remote-Debugging-with-LLDB)
-* Focused on debugging a simple executable built with Swift, not an Android app that includes Swift code as a library
+* Focused on debugging a simple executable built with Swift, not an Android app or APK (documented [here](exploring-apk-debugging.md))
 * Using VS Code and `lldb-dap`, aiming to stay as close as possible to how the Swift VS Code extension works today
 * Toolchain: `main-snapshot-2025-10-16`
 * Android SDK: `swift-DEVELOPMENT-SNAPSHOT-2025-10-16-a-android-0.1`
