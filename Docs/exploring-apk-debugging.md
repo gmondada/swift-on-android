@@ -18,7 +18,7 @@ We will go through these steps:
 
 We need the following tools: swiftly, the swift compiler, the Swift SDK for Android, the Android NDK, the Android emulator and adb.
 
-The Android emulator must be running, and it must be the only device visible to `adb`.
+The Android emulator must be running or an Android device with [developer mode](https://developer.android.com/studio/debug/dev-options) enabled should be connected via USB.
 
 Let's check the environment:
 
@@ -40,6 +40,12 @@ $ adb devices
 List of devices attached
 emulator-5554	device
 ```
+
+> [!NOTE]
+> If multiple devices or emulators are listed in `adb devices`, you can specify which one to use with the [`ANDROID_SERIAL`](https://developer.android.com/tools/adb#directingcommands) environment variable, such as:
+> ```
+> export ANDROID_SERIAL="emulator-5554"
+> ```
 
 We also need an app to debug. In this example, we use the `hello-swift-raw-jni` app from the [`swift-android-examples`](https://github.com/swiftlang/swift-android-examples) repository.
 
