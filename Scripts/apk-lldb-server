@@ -35,6 +35,7 @@ if [ "$APP_ID" = "" ]; then
 	exit
 fi
 
+
 # clean up anything left behind from earlier debugging sessions
 
 function remove_port_forwarding() {
@@ -56,7 +57,6 @@ adb shell  "run-as $APP_ID find $APP_ROOT -name 'gdbserver.*' -exec rm {} \;"
 # install lldb-server in the app sandbox
 
 TARGET_ARCH=$(adb shell uname -m)
-#LLDB_SERVER="/Applications/Android Studio.app/Contents/plugins/android-ndk/resources/lldb/android/arm64-v8a/lldb-server"
 LLDB_SERVER="$(echo $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-*/lib/clang/*/lib/linux/$TARGET_ARCH/lldb-server)"
 if [ ! -f "$LLDB_SERVER" ]; then
 	echo "Error: lldb-server not found for target architecture: $TARGET_ARCH"
@@ -99,17 +99,11 @@ EOF
 
 cat > ~/.lldb/android/last-start-commands << EOF
 platform select remote-android
-command alias a0 platform connect unix-abstract-connect:///$APP_ID/lldb-platform.sock
-command alias a1 process attach --pid $APP_PID
-command alias a1n process attach --name $APP_ID
-command alias a2 process handle SIGSEGV -n false -p true -s false
-command alias a3 process handle SIGBUS -n false -p true -s false
-command alias a4 process handle SIGCHLD -n false -p true -s false
-a0
-a1
-a2
-a3
-a4
+platform connect unix-abstract-connect:///$APP_ID/lldb-platform.sock
+process attach --name $APP_ID
+process handle SIGSEGV -n false -p true -s false
+process handle SIGBUS -n false -p true -s false
+process handle SIGCHLD -n false -p true -s false
 EOF
 
 
@@ -117,4 +111,3 @@ EOF
 
 echo "Starting lldb-server"
 adb shell run-as $APP_ID $APP_ROOT/lldb-stuff/lldb-server platform --server --listen unix-abstract:///$APP_ID/lldb-platform.sock --log-channels "lldb process:gdb-remote packets"
-#adb shell /data/local/tmp/lldb-stuff/lldb-server platform --server --listen unix-abstract:///$APP_ID-0/lldb-platform.sock --log-channels "lldb process:gdb-remote packets"
