@@ -14,6 +14,9 @@ We will go through these steps:
 * Start lldb-server on the target
 * Start the lldb debugging session
 
+> [!NOTE]
+> An ongoing project aims to have all these steps automatically handled by the lldb-dap VS Code extension. See https://discourse.llvm.org/t/rfc-android-support-in-lldb-dap-vs-code-extension/89903.
+
 ## Background
 
 We need the following tools: swiftly, the swift compiler, the Swift SDK for Android, the Android NDK, the Android emulator and adb.
