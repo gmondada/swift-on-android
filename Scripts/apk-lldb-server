@@ -98,6 +98,7 @@ EOF
 # save lldb startup commands
 
 cat > ~/.lldb/android/last-start-commands << EOF
+setting set plugin.jit-loader.gdb.enable off
 platform select remote-android
 platform connect unix-abstract-connect:///$APP_ID/lldb-platform.sock
 process attach --name $APP_ID
@@ -105,6 +106,12 @@ process handle SIGSEGV -n false -p true -s false
 process handle SIGBUS -n false -p true -s false
 process handle SIGCHLD -n false -p true -s false
 EOF
+
+
+# print tip
+
+echo "To start a debug session, use command:"
+echo "  swiftly run lldb -o \"command source -s 0 -e 0 '~/.lldb/android/last-start-commands'\""
 
 
 # start lldb-server
