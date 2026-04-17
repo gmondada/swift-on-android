@@ -27,10 +27,10 @@ Let's check the environment:
 
 ```console
 $ swiftly use
-6.3-snapshot-2026-02-27 (default)
+Swift 6.3.1 (in use) (default)
 
 $ swift sdk list
-swift-6.3-DEVELOPMENT-SNAPSHOT-2026-02-27-a_android
+swift-6.3.1-RELEASE_android
 
 $ echo $ANDROID_NDK_HOME
 /Users/gabriele/Library/Android/sdk/ndk/android-ndk-r27d
@@ -63,8 +63,8 @@ Open a terminal in the `swift-android-examples` root folder and run:
 Depending on when you checked out the examples, you may need to update the  `swift-android.gradle.kts` in this way:
 
 ```kotlin
-var swiftVersion: String = "6.3-snapshot-2026-02-27", // Swift version
-var androidSdkVersion: String = "6.3-DEVELOPMENT-SNAPSHOT-2026-02-27-a_android" // SDK 
+var swiftVersion: String = "6.3.1", // Swift version
+var androidSdkVersion: String = "6.3.1-RELEASE_android" // SDK 
 ```
 
 NOTE: This build phase can actually be skipped, as the command in the next section will build the APK anyway.
