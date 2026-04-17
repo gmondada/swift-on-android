@@ -37,6 +37,12 @@ echo "JDWP Port: $PORT"
 # When ART is in waiting-for-debugger mode, it actually runs in a loop,
 # polling for a debugger agent every 100ms. Therefore, the agent must run
 # for at least 100ms in order for the polling loop to detect it.
+#
+# On Android older than API36, we have to quit Android Studio for this to work. See:
+# https://stackoverflow.com/questions/73724142/jdb-doesnt-work-when-attaching-to-a-running-android-process
+if [ "$API_LEVEL" -lt 36 ]; then
+	echo "Please quit Android Studio to allow jdb to attach to the process."
+fi
 { echo "version"; sleep 4 } | $JDB -attach $PORT
 
 adb forward --remove tcp:$PORT

@@ -206,4 +206,7 @@ In this early startup phase, the app is also listening for JDWP connections on a
 ./dismiss-wfd
 ```
 
+> [!NOTE]
+> On Android 15 (API 35) and earlier, this command fails if Android Studio is running. Android Studio monitors all debuggable processes, blocking other JDWP debuggers from connecting.
+
 Another, more hacky, way to dismiss this popup is to search for `VMDebug_isDebuggerConnected()`, which is the C++ implementation of `Debug.isDebuggerConnected()`. By stopping just before the `ret` instruction and setting the `w0` register to `1` (on AArch64), we force the function to return true.
