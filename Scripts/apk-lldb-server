@@ -100,7 +100,7 @@ EOF
 cat > ~/.lldb/android/last-start-commands << EOF
 setting set plugin.jit-loader.gdb.enable off
 platform select remote-android
-platform connect unix-abstract-connect:///$APP_ID/lldb-platform.sock
+platform connect unix-abstract-connect://$ANDROID_SERIAL/$APP_ID/lldb-platform.sock
 process attach --name $APP_ID
 process handle SIGSEGV -n false -p true -s false
 process handle SIGBUS -n false -p true -s false
